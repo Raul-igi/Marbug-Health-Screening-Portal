@@ -8,9 +8,11 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   ScrollView,
+  Alert,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Colors from "../../constants/Colors";
+import { Button } from "react-native-elements";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import Menu from "../../components/Menu";
@@ -22,6 +24,9 @@ import DashboardLineChart from "./DashboardLineChart";
 import DashboardDonutChartTwo from "./DashboardDonutChartTwo";
 import DashboardDonutChartThree from "./DashboardDonutChartThree";
 import DashboardDT from "./DashboardDT";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import apiService from "../../apiService/apiService";
+import SwitchCategory from "../../components/SwitchCategory/SwitchCategory";
 
 import * as LucideIcons from "lucide-react-native";
 
@@ -60,6 +65,47 @@ const Dashboard = () => {
   const navigation = useNavigation();
   const [value, setValue] = useState(null);
 
+  const [startDate, setStartDate] = useState(new Date());
+  const [showStartDate, setShowStartDate] = useState(false);
+
+  const [endDate, setEndDate] = useState(new Date());
+  const [showEndDate, setShowEndDate] = useState(false);
+
+  const [loading, setLoading] = useState(true);
+  const [statusCase, setStatusCase] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const data = await apiService.fetchDashboardStatusCase();
+        //console.log("Fetched status cases:", data);
+
+        setStatusCase(data);
+      } catch (error) {
+        console.error("Error fetching data:", error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const startOnChange = (event, selectedDate) => {
+    setShowStartDate(false);
+    if (selectedDate) {
+      setStartDate(selectedDate);
+    }
+  };
+
+  const endOnChange = (event, selectedDate) => {
+    setShowEndDate(false);
+    if (selectedDate) {
+      setEndDate(selectedDate);
+    }
+  };
+
   const handleSearch = (text) => {
     setSearchText(text);
     //I will  Implement my search logic here
@@ -92,6 +138,7 @@ const Dashboard = () => {
           <View style={styles.maincontainer}>
             <Headers />
 
+            <SwitchCategory />
             <View style={styles.contentContainer}>
               <View style={styles.userNameWelcomeContainer}>
                 <Text style={styles.userNameWelcomeText1}>Welcome back</Text>
@@ -103,29 +150,62 @@ const Dashboard = () => {
           <View style={{ height: windowHeight - 200 }}>
             <ScrollView style={{ backgroundColor: Colors.pageBackgroundColor }}>
               <View style={styles.buttonContainer}>
-                <TouchableOpacity>
-                  <View style={styles.buttonWithIcon2}>
-                    <Text style={styles.buttonWithIconText2}>Filter By</Text>
+                <View style={styles.datePickerContainer}>
+                  {!showStartDate && (
+                    <>
+                      <Button
+                        title="Start Date"
+                        buttonStyle={{ backgroundColor: "transparent" }}
+                        titleStyle={{
+                          color: Colors.lightBlue,
+                          fontSize: windowHeight / 50,
+                        }}
+                        color={Colors.lightBlue}
+                        onPress={() => setShowStartDate(true)}
+                      />
+                      <Text style={styles.datePickerText}>
+                        {startDate.toDateString()}
+                      </Text>
+                    </>
+                  )}
 
-                    <IconLucide
-                      name="ListFilter"
-                      size={20}
-                      color={Colors.gray}
+                  {showStartDate && (
+                    <DateTimePicker
+                      value={startDate}
+                      mode="date"
+                      display="default"
+                      onChange={startOnChange}
                     />
-                  </View>
-                </TouchableOpacity>
+                  )}
+                </View>
 
-                <TouchableOpacity>
-                  <View style={styles.buttonWithIcon2}>
-                    <Text style={styles.buttonWithIconText2}>Date Range</Text>
+                <View style={styles.datePickerContainer}>
+                  {!showEndDate && (
+                    <>
+                      <Button
+                        title="End Date"
+                        buttonStyle={{ backgroundColor: "transparent" }}
+                        titleStyle={{
+                          color: Colors.lightBlue,
+                          fontSize: windowHeight / 50,
+                        }}
+                        onPress={() => setShowEndDate(true)}
+                      />
+                      <Text style={styles.datePickerText}>
+                        {endDate.toDateString()}
+                      </Text>
+                    </>
+                  )}
 
-                    <IconLucide
-                      name="CalendarCheck2"
-                      size={20}
-                      color={Colors.gray}
+                  {showEndDate && (
+                    <DateTimePicker
+                      value={endDate}
+                      mode="date"
+                      display="default"
+                      onChange={endOnChange}
                     />
-                  </View>
-                </TouchableOpacity>
+                  )}
+                </View>
 
                 <TouchableOpacity
                   onPress={() => {
@@ -143,113 +223,44 @@ const Dashboard = () => {
               </View>
 
               <View>
-                <View style={styles.contentCards1}>
-                  <View>
-                    <View style={styles.Card}>
-                      <View style={styles.cardFirstRow}>
-                        <Text style={styles.cardFirstRowText}>
-                          Total Screenings
-                        </Text>
-                      </View>
-
-                      <View style={styles.cardSecondRow}>
+                <View>
+                  {statusCase.length > 0 ? (
+                    <View style={styles.contentCards1}>
+                      {statusCase.map((item) => (
                         <View>
-                          <Text style={styles.cardSecondRowText}>130</Text>
-                        </View>
+                          <View style={styles.Card}>
+                            <View style={styles.cardFirstRow}>
+                              <Text style={styles.cardFirstRowText}>
+                                {item.name}
+                              </Text>
+                            </View>
 
-                        <View>
-                          <Text style={styles.cardSecondRowText}>
-                            <IconLucide
-                              name="Users"
-                              size={20}
-                              color={Colors.lightBlue}
-                            />
-                          </Text>
+                            <View style={styles.cardSecondRow}>
+                              <View>
+                                <Text style={styles.cardSecondRowText}>
+                                  {item.count}
+                                </Text>
+                              </View>
+
+                              <View>
+                                <Text style={styles.cardSecondRowText}>
+                                  <IconLucide
+                                    name="Users"
+                                    size={20}
+                                    color={item.color || Colors.lightBlue}
+                                  />
+                                </Text>
+                              </View>
+                            </View>
+                          </View>
                         </View>
-                      </View>
+                      ))}
                     </View>
-                  </View>
-
-                  <View>
-                    <View style={styles.Card}>
-                      <View style={styles.cardFirstRow}>
-                        <Text style={styles.cardFirstRowText}>
-                          Test for Other Diseases{" "}
-                        </Text>
-                      </View>
-
-                      <View style={styles.cardSecondRow}>
-                        <View>
-                          <Text style={styles.cardSecondRowText}>105</Text>
-                        </View>
-
-                        <View>
-                          <Text style={styles.cardSecondRowText}>
-                            <IconLucide
-                              name="Clock"
-                              size={20}
-                              color={Colors.lightBlue}
-                            />
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
-                  </View>
+                  ) : (
+                    <Text>No status cases available</Text>
+                  )}
                 </View>
 
-                <View style={styles.contentCards2}>
-                  <View>
-                    <View style={styles.Card}>
-                      <View style={styles.cardFirstRow}>
-                        <Text style={styles.cardFirstRowText}>
-                          Isolate and Investigate
-                        </Text>
-                      </View>
-
-                      <View style={styles.cardSecondRow}>
-                        <View>
-                          <Text style={styles.cardSecondRowText}>500</Text>
-                        </View>
-
-                        <View>
-                          <Text style={styles.cardSecondRowText}>
-                            <IconLucide
-                              name="CircleAlert"
-                              size={20}
-                              color={Colors.lightBlue}
-                            />
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
-                  </View>
-
-                  <View>
-                    <View style={styles.Card}>
-                      <View style={styles.cardFirstRow}>
-                        <Text style={styles.cardFirstRowText}>
-                          Linked to Testing
-                        </Text>
-                      </View>
-
-                      <View style={styles.cardSecondRow}>
-                        <View>
-                          <Text style={styles.cardSecondRowText}>25</Text>
-                        </View>
-
-                        <View>
-                          <Text style={styles.cardSecondRowText}>
-                            <IconLucide
-                              name="CircleCheck"
-                              size={20}
-                              color={Colors.lightBlue}
-                            />
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
-                  </View>
-                </View>
                 <DashboardDonutChart />
                 <DashboardBarChart />
                 <DashboardLineChart />
@@ -302,6 +313,7 @@ const styles = StyleSheet.create({
 
   contentCards1: {
     flexDirection: "row",
+    flexWrap: "wrap", // break the row and go the next row
     justifyContent: "center",
     alignItems: "center",
     gap: 10,
@@ -429,6 +441,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "space-between",
     marginTop: 10,
     marginHorizontal: 20,
     gap: 10,
@@ -450,12 +463,11 @@ const styles = StyleSheet.create({
   buttonWithIconText: {
     color: Colors.solidWhite,
     fontSize: windowHeight / 60,
-    
   },
 
   buttonWithIconText2: {
     color: Colors.gray,
-    fontSize: 15,
+    fontSize: windowHeight / 60,
   },
 
   buttonWithIcon1: {
@@ -470,21 +482,18 @@ const styles = StyleSheet.create({
     gap: 10,
   },
 
-  buttonWithIcon2: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    height: windowHeight * 0.05,
-    width: windowWidth * 0.35,
-    backgroundColor: Colors.solidWhite,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: Colors.lightBlue,
-    gap: 10,
-  },
   buttonText: {
     fontSize: 15,
     color: Colors.solidWhite,
+  },
+
+  datePickerContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  datePickerText: {
+    color: Colors.gray,
+    fontSize: windowHeight / 60,
   },
 });
 

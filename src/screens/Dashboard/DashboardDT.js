@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Animated,
 } from "react-native";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState,useEffect } from "react";
 import Colors from "../../constants/Colors";
 import { DataTable, List } from "react-native-paper";
 import { ScrollView } from "react-native-gesture-handler";
@@ -14,6 +14,7 @@ import { Dropdown } from "react-native-element-dropdown";
 import { useNavigation } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import * as LucideIcons from "lucide-react-native";
+import apiService from "../../apiService/apiService";
 
 const IconLucide = ({ name, size = 24, color = "black" }) => {
   const LucideIcon = LucideIcons[name];
@@ -44,8 +45,78 @@ const data = [
 const DashboardDT = () => {
   const navigation = useNavigation();
   const [focusedField, setFocusedField] = useState(null);
-  // Updated to use an object to track values for each row
-  const [rowValues, setRowValues] = useState({}); // Track dropdown values for each row
+  const [rowValues, setRowValues] = useState({}); 
+  
+  const [loading,setLoading] =useState({});
+  const [casesList, setCasesList] = useState([]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  useEffect(() => {
+    const fetchPatientCaseListData = async () => {
+      try {
+        setLoading(true);
+  
+        // Fetch data from API
+        const response = await apiService.fetchPatientCaseList();
+  
+        // Handle different API response formats
+        const responseData = response.data?.data || response.data;
+        if (!responseData || !Array.isArray(responseData)) {
+          throw new Error("Invalid API response format");
+        }
+  
+        console.log("Cases Data:", responseData);
+  
+        // Format data
+       
+  
+        setCasesList(responseData);
+        console.log("Formatted Cases:", responseData);
+      } catch (error) {
+        console.error("Error fetching patient cases:", error.toString());
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchPatientCaseListData();
+  }, []);  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   const renderItem = (item, isSelected) => {
     return (
@@ -151,117 +222,41 @@ const DashboardDT = () => {
       <View style={styles.accordionMainContainer}>
         <List.Section title="Recent Cases">
         <List.Section style={{marginTop:-20}} title="Overview of the most recent patient cases"/>
+
+
+
+        {casesList?.map((caseDetails) =>(
           <List.Accordion
+
             style={styles.accordionContainer}
-            title="Mwami Damien"
+            title={`${caseDetails.casePersonalInfo.firstName} ${caseDetails.casePersonalInfo.lastName}`}
             titleStyle={{ fontSize: windowHeight / 55 }}
             backgroundColor="red"
             left={(props) => (
               <List.Icon {...props} icon="table" color="#0790CF" />
             )}
           >
-            <List.Item style={styles.accordionRow} title="Status:  NO_THREAT" />
+            <List.Item style={styles.accordionRow} title={`Status: ${caseDetails.status.name}`} />
             <List.Item
               style={styles.accordionRow}
-              title="Date Added:  1/29/2025"
+              title={`Date: ${caseDetails.casePersonalInfo.createdAt.split("T")[0]}`}
             />
           </List.Accordion>
 
-          <List.Accordion
-            style={styles.accordionContainer}
-            title="Claude Kalisa"
-            titleStyle={{ fontSize: windowHeight / 55 }}
-            backgroundColor="red"
-            left={(props) => (
-              <List.Icon {...props} icon="table" color="#0790CF" />
-            )}
-          >
-            <List.Item style={styles.accordionRow} title="Status:  NO_THREAT" />
-            <List.Item
-              style={styles.accordionRow}
-              title="Date Added:  1/29/2025"
-            />
-          </List.Accordion>
+        ))}
 
-          <List.Accordion
-            style={styles.accordionContainer}
-            title="Chris Muhawenimana"
-            titleStyle={{ fontSize: windowHeight / 55 }}
-            backgroundColor="red"
-            left={(props) => (
-              <List.Icon {...props} icon="table" color="#0790CF" />
-            )}
-          >
-            <List.Item style={styles.accordionRow} title="Status:  NO_THREAT" />
-            <List.Item
-              style={styles.accordionRow}
-              title="Date Added:  1/29/2025"
-            />
-          </List.Accordion>
 
-          <List.Accordion
-            style={styles.accordionContainer}
-            title="Mukundwa Joshua"
-            titleStyle={{ fontSize: windowHeight / 55 }}
-            backgroundColor="red"
-            left={(props) => (
-              <List.Icon {...props} icon="table" color="#0790CF" />
-            )}
-          >
-            <List.Item style={styles.accordionRow} title="Status:  NO_THREAT" />
-            <List.Item
-              style={styles.accordionRow}
-              title="Date Added:  1/29/2025"
-            />
-          </List.Accordion>
 
-          <List.Accordion
-            style={styles.accordionContainer}
-            title="John Rutambi"
-            titleStyle={{ fontSize: windowHeight / 55 }}
-            backgroundColor="red"
-            left={(props) => (
-              <List.Icon {...props} icon="table" color="#0790CF" />
-            )}
-          >
-            <List.Item style={styles.accordionRow} title="Status:  NO_THREAT" />
-            <List.Item
-              style={styles.accordionRow}
-              title="Date Added:  1/29/2025"
-            />
-          </List.Accordion>
 
-          <List.Accordion
-            style={styles.accordionContainer}
-            title="Umwiza kalen"
-            titleStyle={{ fontSize: windowHeight / 55 }}
-            backgroundColor="red"
-            left={(props) => (
-              <List.Icon {...props} icon="table" color="#0790CF" />
-            )}
-          >
-            <List.Item style={styles.accordionRow} title="Status:  NO_THREAT" />
-            <List.Item
-              style={styles.accordionRow}
-              title="Date Added:  1/29/2025"
-            />
-          </List.Accordion>
 
-          <List.Accordion
-            style={styles.accordionContainer}
-            title="Keza Dorian"
-            titleStyle={{ fontSize: windowHeight / 55 }}
-            backgroundColor="red"
-            left={(props) => (
-              <List.Icon {...props} icon="table" color="#0790CF" />
-            )}
-          >
-            <List.Item style={styles.accordionRow} title="Status:  NO_THREAT" />
-            <List.Item
-              style={styles.accordionRow}
-              title="Date Added:  1/29/2025"
-            />
-          </List.Accordion>
+
+
+
+
+
+
+
+
 
           <TouchableOpacity
             onPress={() => {

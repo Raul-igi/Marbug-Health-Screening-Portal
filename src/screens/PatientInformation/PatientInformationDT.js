@@ -5,13 +5,16 @@ import {
   Dimensions,
   TouchableOpacity,
   Animated,
+  ScrollView,
 } from "react-native";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Colors from "../../constants/Colors";
-import { DataTable } from "react-native-paper";
-import { ScrollView } from "react-native-gesture-handler";
+import { DataTable, List } from "react-native-paper";
 import { Dropdown } from "react-native-element-dropdown";
 import * as LucideIcons from "lucide-react-native";
+import apiService from "../../apiService/apiService";
+import { useNavigation } from "@react-navigation/native";
+import Modal from "react-native-modal";
 
 const IconLucide = ({ name, size = 24, color = "black" }) => {
   const LucideIcon = LucideIcons[name];
@@ -21,8 +24,8 @@ const IconLucide = ({ name, size = 24, color = "black" }) => {
   return <LucideIcon size={size} color={color} />;
 };
 
-const windowWidth = Dimensions.get("window").width;
-const windowHeight = Dimensions.get("window").height;
+const windowWidth = Dimensions.get("screen").width;
+const windowHeight = Dimensions.get("screen").height;
 
 const data = [
   { label: "Isolate and Investigate", value: "1" },
@@ -39,10 +42,126 @@ const data = [
   { label: "Linked To Testing", value: "9" },
 ];
 
-const RoutineCareDT = () => {
+const PatientInformationDT = () => {
+  const navigation = useNavigation();
+
   const [focusedField, setFocusedField] = useState(null);
-  // Updated to use an object to track values for each row
-  const [rowValues, setRowValues] = useState({}); // Track dropdown values for each row
+  const [rowValues, setRowValues] = useState({});
+  //const toggleFirstModal = () => setShow(!show);
+  const [show, setShow] = useState(false);
+
+  const [selectedCase, setSelectedCase] = useState(null);
+  const [casesList, setCasesList] = useState([]);
+  const [loading, setLoading] = useState({});
+
+  const toggleFirstModal = (caseDetails = null) => {
+    if (caseDetails) {
+      setSelectedCase(caseDetails);
+      setShow(true);
+    } else {
+      setShow(false);
+      setSelectedCase(null);
+    }
+  };
+
+
+
+
+  const formatDate = (isoString) => {
+    const date = new Date(isoString);
+  
+    
+    const day = date.getDate();
+    const month = date.getMonth() + 1; 
+    const year = date.getFullYear();
+  
+    
+    const hours = date.getHours() % 12 || 12; 
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+    const ampm = date.getHours() >= 12 ? "PM" : "AM";
+  
+    return `${day}/${month}/${year}, ${hours}:${minutes}:${seconds} ${ampm}`;
+  };
+  
+
+  
+
+
+
+
+
+
+
+
+
+  useEffect(() => {
+    const fetchPatientCaseListData = async () => {
+      try {
+        setLoading(true);
+
+        // Fetch data from API
+        const response = await apiService.fetchPatientCaseList();
+
+        // Handle different API response formats
+        const responseData = response.data?.data || response.data;
+        if (!responseData || !Array.isArray(responseData)) {
+          throw new Error("Invalid API response format");
+        }
+
+        //console.log("Cases Data:", responseData);
+
+        // Format data
+
+        setCasesList(responseData);
+       // console.log("Formatted Cases:", responseData);
+      } catch (error) {
+        console.error("Error fetching patient cases:", error.toString());
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPatientCaseListData();
+  }, []);
+
+
+
+
+
+
+
+  const fetchCaseDetailsById = async (caseId) => {
+    try {
+      // Fetch data from API
+      const response = await apiService.fetchCaseById(caseId);
+  
+      if (!response || !response.data || !response.data.data) {
+        throw new Error("Invalid API response format for case details");
+      }
+  
+      console.log(`Case Details for ${caseId}:`, response.data.data);
+      return response.data.data;
+    } catch (error) {
+      console.error(`Error fetching details for case ${caseId}:`, error.toString());
+      return null; // Return null if fetching fails
+    }
+  };
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   const renderItem = (item, isSelected) => {
     return (
@@ -62,108 +181,14 @@ const RoutineCareDT = () => {
     );
   };
 
-  //Icon rotation config section
-  const rotation = useRef(new Animated.Value(0)).current;
-
-  const startRotation = () => {
-    rotation.setValue(0); // Reset the rotation to start from 0
-    Animated.timing(rotation, {
-      toValue: 1, // Complete one full rotation
-      duration: 500, // Animation duration in milliseconds
-      useNativeDriver: true, // Use native driver for better performance
-    }).start();
-  };
-
-  const rotateInterpolate = rotation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["0deg", "360deg"],
-  });
-
-  const rotateStyle = {
-    transform: [{ rotate: rotateInterpolate }],
-  };
-  //End of Icon rotation config section
-
-  //pagination section
-
-  const [page, setPage] = React.useState(0);
-  const [numberOfItemsPerPageList] = React.useState([2, 3, 4]);
-  const [itemsPerPage, onItemsPerPageChange] = React.useState(
-    numberOfItemsPerPageList[0]
-  );
-
-  //End of pagination section
-
-  const [items] = React.useState([
-    {
-      key: 1,
-      name: "Rusekeza Simon Pierre",
-      healthFacility: "Test Cs",
-      location: "KIGALI,Gasabo,Jabana",
-      status: "NO THREAT",
-      action: "icon icon",
-      date:'10/02/2025'
-    },
-    {
-      key: 2,
-     
-      name: "Nsoro Raul",
-      healthFacility: "Test Cs",
-      location: "KIGALI,Gasabo,Jabana",
-      status: "NO THREAT",
-      action: "icon icon",
-      date:'10/02/2025'
-    },
-    {
-      key: 3,
-      name: "John Karake",
-      healthFacility: "Test Cs",
-      location: "KIGALI,Gasabo,Jabana",
-      status: "NO THREAT",
-      action: "icon icon",
-      date:'10/02/2025'
-    },
-    {
-      key: 4,
-      name: "Chris Muhawenimana",
-      healthFacility: "Test Cs",
-      location: "KIGALI,Gasabo,Jabana",
-      status: "NO THREAT",
-      action: "icon icon",
-      date:'10/02/2025'
-    },
-  ]);
-
-  const from = page * itemsPerPage;
-  const to = Math.min((page + 1) * itemsPerPage, items.length);
-
-  React.useEffect(() => {
-    setPage(0);
-  }, [itemsPerPage]);
-
   return (
     <View>
       <View style={styles.tablecaseHeader}>
         <Text style={styles.mainHeader}>Patient Cases (10)</Text>
-        <Text style={styles.subHeader}>
-        Monitoring your patient cases
-        </Text>
+        <Text style={styles.subHeader}>Monitoring your patient cases</Text>
       </View>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity onPress={startRotation}>
-          <View style={styles.buttonWithIcon}>
-            <Text style={styles.buttonWithIconText}>Reset Filters</Text>
-            <Animated.View style={rotateStyle}>
-              <IconLucide
-                name="RefreshCcw"
-                size={20}
-                color={Colors.lightBlue}
-              />
-            </Animated.View>
-          </View>
-        </TouchableOpacity>
-
         <TouchableOpacity>
           <View style={styles.buttons}>
             <Text style={styles.buttonText}>Export</Text>
@@ -172,132 +197,208 @@ const RoutineCareDT = () => {
 
         <TouchableOpacity>
           <View style={styles.buttons}>
-            <Text style={styles.buttonText}>Add new Case</Text>
+            <IconLucide name="Plus" size={20} color={Colors.solidWhite} />
+            <Text style={styles.buttonText}>New Case</Text>
           </View>
         </TouchableOpacity>
       </View>
 
-      <ScrollView horizontal>
-        <ScrollView>
-          <DataTable>
-            <DataTable.Header>
-              <DataTable.Title style={{ width: 50 }}>#</DataTable.Title>
-              <DataTable.Title style={{ width: 150 }}>Date</DataTable.Title>
-              <DataTable.Title style={{ width: 150 }}>Names</DataTable.Title>
-              <DataTable.Title style={{ width: 120 }}>
-                Health Facility
-              </DataTable.Title>
-              <DataTable.Title style={{ width: 150 }}>Location</DataTable.Title>
-              <DataTable.Title style={{ width: 100 }}>Status</DataTable.Title>
-              <DataTable.Title style={{ width: 100,marginLeft:100 }}>Actions</DataTable.Title>
-            </DataTable.Header>
+      <View style={styles.accordionMainContainer}>
+        <List.Section title="Data Table">
+          {casesList?.map((caseDetails) => (
+            <List.Accordion
+              style={styles.accordionContainer}
+              title={`${caseDetails.casePersonalInfo.firstName} ${caseDetails.casePersonalInfo.lastName}`}
+              titleStyle={{ fontSize: windowHeight / 55 }}
+              backgroundColor="red"
+              left={(props) => (
+                <List.Icon {...props} icon="table" color="#0790CF" />
+              )}
+            >
+              <List.Item
+                style={styles.accordionRow}
+                title={`Date: ${
+                  caseDetails.casePersonalInfo.createdAt.split("T")[0]
+                }`}
+              />
 
-            {items.slice(from, to).map((item) => (
-              <DataTable.Row key={item.key}>
-                <DataTable.Cell style={{ width: 50 }}>
-                  {item.key}
-                </DataTable.Cell>
-                <DataTable.Cell style={{ width: 150 }}>
-                  {item.date}
-                </DataTable.Cell>
-                <DataTable.Cell style={{ width: 150 }}>
-                  {item.name}
-                </DataTable.Cell>
-                <DataTable.Cell style={{ width: 120 }}>
-                  {item.healthFacility}
-                </DataTable.Cell>
-                <DataTable.Cell style={{ width: 150 }}>
-                  {item.location}
-                </DataTable.Cell>
-                
-                <DataTable.Cell style={{ width: 100 }}>
-                  <View>
-                    <Dropdown
-                      containerStyle={{
-                        borderRadius: 10,
-                        backgroundColor: Colors.pageBackgroundColor,
-                        padding: 10,
-                      }}
-                      style={[
-                        styles.filterdropdown,
-                        focusedField === item.key && { borderColor: "#0790CF" },
-                      ]}
-                      placeholderStyle={styles.dropDownPlaceHolderStyle}
-                      selectedTextStyle={styles.selectedTextStyle}
-                      inputSearchStyle={styles.inputSearchStyle}
-                      data={data}
-                      maxHeight={300}
-                      labelField="label"
-                      valueField="value"
-                      placeholder="Filter by status"
-                      value={rowValues[item.key] || null} // Use row-specific value
-                      onChange={(selectedItem) => {
-                        setRowValues((prev) => ({
-                          ...prev,
-                          [item.key]: selectedItem.value, // Set value for this specific row
-                        }));
-                      }}
-                      renderItem={(dropdownItem) =>
-                        renderItem(
-                          dropdownItem,
-                          dropdownItem.value === rowValues[item.key]
-                        )
-                      }
-                      onFocus={() => setFocusedField(item.key)}
-                      onBlur={() => setFocusedField(null)}
-                    />
-                  </View>
-                </DataTable.Cell>
-                <DataTable.Cell style={{ width: 100,marginLeft:100 }}>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
+              <List.Item
+                style={styles.accordionRow}
+                title={`Health Facility: ${caseDetails.healthFacility.name}`}
+              />
+
+              <List.Item
+                style={styles.accordionRow}
+                title={`Location: ${caseDetails.healthFacility.province} ,${caseDetails.healthFacility.district} ,${caseDetails.healthFacility.sector} ,${caseDetails.healthFacility.cell}`}
+              />
+
+              <List.Item
+                style={styles.accordionRow}
+                title={`Status: ${caseDetails.status.name}`}
+              />
+
+              <List.Item
+                style={styles.accordionRow}
+                title="Actions:"
+                right={(props) => (
+                  <TouchableOpacity
+                    style={styles.viewStatus}
+                    onPress={() => toggleFirstModal(caseDetails)}
                   >
-                    <TouchableOpacity
-                      style={{ marginRight: 10 }}
-                      onPress={() =>
-                        console.log(`Edit action for ${item.name}`)
-                      }
-                    >
-                      <IconLucide
-                        name="Eye"
-                        size={20}
-                        color={Colors.lightBlue}
-                      />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() =>
-                        console.log(`Delete action for ${item.name}`)
-                      }
-                    >
-                      <IconLucide
-                        name="History"
-                        size={16}
-                        color={Colors.lightBlue}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                </DataTable.Cell>
-              </DataTable.Row>
-            ))}
+                    <IconLucide name="Eye" size={20} color={Colors.lightBlue} />
+                  </TouchableOpacity>
+                )}
+              />
+            </List.Accordion>
+          ))}
+        </List.Section>
 
-            <DataTable.Pagination
-              page={page}
-              numberOfPages={Math.ceil(items.length / itemsPerPage)}
-              onPageChange={(page) => setPage(page)}
-              label={`${from + 1}-${to} of ${items.length}`}
-              numberOfItemsPerPageList={numberOfItemsPerPageList}
-              numberOfItemsPerPage={itemsPerPage}
-              onItemsPerPageChange={onItemsPerPageChange}
-              showFastPaginationControls
-              selectPageDropdownLabel={"Rows per page"}
-            />
-          </DataTable>
-        </ScrollView>
-      </ScrollView>
+        <Modal
+          isVisible={show}
+          backdropOpacity={0.5} // Disable the black background
+          onBackdropPress={toggleFirstModal}
+          //animationType="fade"
+        >
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalHeaderText}>Suspect details</Text>
+            </View>
+
+            <ScrollView>
+              {selectedCase ? (
+                <>
+                  <View style={styles.modalSubHeader}>
+                    <Text style={styles.modalSubHeaderText}>
+                      Showing suspect details for{" "}
+                      {selectedCase.casePersonalInfo.firstName}
+                    </Text>
+                  </View>
+
+                  <View style={styles.userDescription}>
+                    <Text style={styles.userTextDescription}>Name</Text>
+                    <Text style={styles.userTextDescription}>
+                      {selectedCase.casePersonalInfo.firstName}{" "}
+                      {selectedCase.casePersonalInfo.lastName}
+                    </Text>
+                  </View>
+
+                  <View style={styles.separator} />
+
+                  <View style={styles.userDescription}>
+                    <Text style={styles.userTextDescription}>Telephone</Text>
+                    <Text style={styles.userTextDescription}>
+                      {selectedCase.casePersonalInfo.telephone}
+                    </Text>
+                  </View>
+
+                  <View style={styles.separator} />
+
+                  <View style={styles.userDescription}>
+                    <Text style={styles.userTextDescription}>Status</Text>
+                    <Text style={styles.userTextDescription}>
+                      {selectedCase.status.name}
+                    </Text>
+                  </View>
+
+                  <View style={styles.separator} />
+
+                  <View style={styles.userDescription}>
+                    <Text style={styles.userTextDescription}>
+                      Registered At
+                    </Text>
+                    <Text style={styles.userTextDescription}>
+                    {formatDate(selectedCase.casePersonalInfo.createdAt)}
+                    </Text>
+                  </View>
+
+                  <View style={styles.modalHeader2}>
+                    <Text style={styles.modalHeaderText}>
+                      Assessment Review
+                    </Text>
+                  </View>
+
+                  <View style={styles.modalSubHeader2}>
+                    <Text style={styles.modalSubHeaderText}>
+                      Information of the suspect gathered
+                    </Text>
+                  </View>
+
+                  <View style={styles.userDescription}>
+                    <Text style={styles.userTextDescription}>Name</Text>
+                    <Text style={styles.userTextDescription}>
+                    {selectedCase.casePersonalInfo.firstName}{" "}
+                    {selectedCase.casePersonalInfo.lastName}
+                    </Text>
+                  </View>
+
+                  <View style={styles.separator} />
+
+                  <View style={styles.userDescription}>
+                    <Text style={styles.userTextDescription}>
+                      Health Center
+                    </Text>
+                    <Text style={styles.userTextDescription}>{selectedCase.healthFacility.name}</Text>
+                  </View>
+
+                  <View style={styles.separator} />
+
+                  <View style={styles.leftSideHeader}>
+                    <Text style={styles.leftSideHeaderText}>
+                      Has he/she had any unexplained bleeding?
+                    </Text>
+                  </View>
+
+                  <View style={styles.leftSideHeader}>
+                    <Text style={styles.leftSideHeaderText}>
+                      Select all symptoms that the patient is experiencing
+                    </Text>
+                  </View>
+
+                  <View style={styles.separator} />
+
+                  <View style={styles.modalHeader2}>
+                    <Text style={styles.modalHeaderText}>
+                      Screening Officer
+                    </Text>
+                  </View>
+
+                  <View style={styles.userDescription}>
+                    <Text style={styles.userTextDescription}>Name</Text>
+                    <Text style={styles.userTextDescription}>{JSON.stringify(selectedCase.screenerPersonalInfo?.firstName)}</Text>
+                  </View>
+
+                  <View style={styles.userDescription}>
+                    <Text style={styles.userTextDescription}>Phone</Text>
+                    <Text style={styles.userTextDescription}>{selectedCase.screenerPersonalInfo?.telephone}</Text>
+                  </View>
+
+                  <View style={styles.separator} />
+
+                  <View style={styles.modalHeader2}>
+                    <Text style={styles.modalHeaderText}>Status History</Text>
+                  </View>
+
+                  <View style={styles.historyContainer}>
+                    <Text style={styles.historyText}>
+                      No status history available.
+                    </Text>
+                  </View>
+                </>
+              ) : (
+                <Text>No case data available</Text>
+              )}
+
+              <View style={styles.buttonContainer2}>
+                <TouchableOpacity onPress={() => toggleFirstModal()}>
+                  <View style={styles.cancelButton}>
+                    <Text style={styles.cancelButtonText}>cancel</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </View>
+        </Modal>
+      </View>
     </View>
   );
 };
@@ -310,22 +411,23 @@ const styles = StyleSheet.create({
   },
 
   mainHeader: {
-    fontSize: 20,
+    fontSize: windowHeight / 50,
     fontWeight: 600,
     color: Colors.dark,
   },
 
   subHeader: {
-    fontSize: 17,
+    fontSize: windowHeight / 50,
     fontWeight: 400,
     color: Colors.dark,
   },
 
   buttonContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
     marginHorizontal: 10,
     marginTop: 10,
+    gap: 20,
   },
 
   buttonWithIcon: {
@@ -346,16 +448,18 @@ const styles = StyleSheet.create({
   },
 
   buttons: {
+    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     height: windowHeight * 0.05,
     width: windowWidth * 0.29,
     backgroundColor: Colors.lightBlue,
     borderRadius: 10,
+    gap: 5,
   },
 
   buttonText: {
-    fontSize: 15,
+    fontSize: windowHeight / 55,
     color: Colors.solidWhite,
   },
 
@@ -381,8 +485,151 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.lightGray,
     marginVertical: 2,
   },
+  accordionContainer: {
+    backgroundColor: "#e2eafc",
+    paddingLeft: -40,
+    marginHorizontal: 10,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#d7e3fc",
+  },
+  accordionMainContainer: {
+    marginHorizontal: 20,
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: Colors.lightBlue,
+    borderRadius: 10,
+    marginBottom: windowHeight * 0.2,
+  },
+  accordionRow: {
+    paddingLeft: -40,
+    marginHorizontal: 10,
+    borderRadius: 5,
+  },
 
-  //dropdown styling section
+  viewStatus: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: windowWidth * 0.2,
+    height: windowHeight * 0.035,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: Colors.lightBlue,
+  },
+
+  //modal
+
+  modalContent: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+    width: "100%",
+    height: "140%",
+    marginTop: "100%",
+  },
+
+  //modal content
+
+  modalHeader: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  modalHeaderText: {
+    fontSize: windowHeight / 50,
+    fontWeight: "600",
+    color: Colors.lightBlue,
+  },
+
+  modalSubHeader: {
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 10,
+  },
+
+  modalSubHeaderText: {
+    fontSize: windowHeight / 50,
+    fontWeight: "500",
+    color: Colors.dark,
+  },
+
+  userDescription: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "space-between",
+    marginTop: 20,
+  },
+
+  userTextDescription: {
+    fontSize: windowHeight / 55,
+    color: Colors.gray,
+  },
+
+  modalHeader2: {
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 15,
+  },
+
+  modalSubHeader2: {
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 10,
+  },
+
+  leftSideHeader: {
+    marginTop: 15,
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
+  },
+
+  leftSideHeaderText: {
+    fontSize: windowHeight / 55,
+    fontWeight: "600",
+    color: Colors.dark,
+  },
+
+  historyContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 10,
+  },
+
+  historyText: {
+    fontSize: windowHeight / 50,
+    fontWeight: "400",
+    color: Colors.gray,
+  },
+
+  buttonContainer2: {
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 20,
+  },
+
+  cancelButton: {
+    justifyContent: "center",
+    alignItems: "center",
+    height: windowHeight * 0.05,
+    width: windowWidth * 0.39,
+    backgroundColor: Colors.solidWhite,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: Colors.lightBlue,
+    marginTop: 10,
+  },
+
+  cancelButtonText: {
+    color: Colors.lightBlue,
+    fontSize: 14,
+    fontWeight: 700,
+  },
+
+  separator: {
+    height: 1,
+    marginTop: 15,
+    backgroundColor: Colors.lightGray,
+  },
 });
 
-export default RoutineCareDT;
+export default PatientInformationDT;

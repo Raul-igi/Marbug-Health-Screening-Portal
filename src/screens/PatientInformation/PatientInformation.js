@@ -72,190 +72,180 @@ const PatientInformation = () => {
   };
 
   return (
-    <ScrollView>
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.maincontainer}>
-        <View>
+    
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.maincontainer}>
           <Headers />
-          <View style={styles.menuHamburger}>
-            <TouchableOpacity onPress={() => navigation.openDrawer()}>
-              <IconLucide name="AlignJustify" size={23} color={"black"} />
-            </TouchableOpacity>
-          </View>
-        </View>
+          <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={styles.contentContainer}>
+            
 
-        <View style={styles.contentContainer}>
-          <View style={styles.contentHeaderTextContainer}>
-            <Text style={styles.contentHeaderText}>
-              Marburg Health Screening Portal
-            </Text>
-          </View>
-
-          <View>
-            <View style={styles.contentCards1}>
-              <View>
-                <View style={styles.Card}>
-                  <View style={styles.cardFirstRow}>
-                    <Text style={styles.cardFirstRowText}>
-                      Total Screenings
-                    </Text>
-                  </View>
-
-                  <View style={styles.cardSecondRow}>
-                    <View>
-                      <Text style={styles.cardSecondRowText}>130</Text>
+            <View>
+              <View style={styles.contentCards1}>
+                <View>
+                  <View style={styles.Card}>
+                    <View style={styles.cardFirstRow}>
+                      <Text style={styles.cardFirstRowText}>
+                        Total Screenings
+                      </Text>
                     </View>
 
-                    <View>
-                      <Text style={styles.cardSecondRowText}>
-                        <IconLucide
-                          name="Users"
-                          size={20}
-                          color={Colors.lightBlue}
-                        />
+                    <View style={styles.cardSecondRow}>
+                      <View>
+                        <Text style={styles.cardSecondRowText}>130</Text>
+                      </View>
+
+                      <View>
+                        <Text style={styles.cardSecondRowText}>
+                          <IconLucide
+                            name="Users"
+                            size={20}
+                            color={Colors.lightBlue}
+                          />
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+
+                <View>
+                  <View style={styles.Card}>
+                    <View style={styles.cardFirstRow}>
+                      <Text style={styles.cardFirstRowText}>
+                        Test for Other Diseases{" "}
                       </Text>
+                    </View>
+
+                    <View style={styles.cardSecondRow}>
+                      <View>
+                        <Text style={styles.cardSecondRowText}>105</Text>
+                      </View>
+
+                      <View>
+                        <Text style={styles.cardSecondRowText}>
+                          <IconLucide
+                            name="Clock"
+                            size={20}
+                            color={Colors.lightBlue}
+                          />
+                        </Text>
+                      </View>
                     </View>
                   </View>
                 </View>
               </View>
 
-              <View>
-                <View style={styles.Card}>
-                  <View style={styles.cardFirstRow}>
-                    <Text style={styles.cardFirstRowText}>
-                      Test for Other Diseases{" "}
-                    </Text>
-                  </View>
-
-                  <View style={styles.cardSecondRow}>
-                    <View>
-                      <Text style={styles.cardSecondRowText}>105</Text>
+              <View style={styles.contentCards2}>
+                <View>
+                  <View style={styles.Card}>
+                    <View style={styles.cardFirstRow}>
+                      <Text style={styles.cardFirstRowText}>
+                        Isolate and Investigate
+                      </Text>
                     </View>
 
-                    <View>
-                      <Text style={styles.cardSecondRowText}>
-                        <IconLucide
-                          name="Clock"
-                          size={20}
-                          color={Colors.lightBlue}
-                        />
-                      </Text>
+                    <View style={styles.cardSecondRow}>
+                      <View>
+                        <Text style={styles.cardSecondRowText}>500</Text>
+                      </View>
+
+                      <View>
+                        <Text style={styles.cardSecondRowText}>
+                          <IconLucide
+                            name="CircleAlert"
+                            size={20}
+                            color={Colors.lightBlue}
+                          />
+                        </Text>
+                      </View>
                     </View>
                   </View>
                 </View>
-              </View>
-            </View>
 
-            <View style={styles.contentCards2}>
-              <View>
-                <View style={styles.Card}>
-                  <View style={styles.cardFirstRow}>
-                    <Text style={styles.cardFirstRowText}>
-                      Isolate and Investigate
-                    </Text>
-                  </View>
-
-                  <View style={styles.cardSecondRow}>
-                    <View>
-                      <Text style={styles.cardSecondRowText}>500</Text>
-                    </View>
-
-                    <View>
-                      <Text style={styles.cardSecondRowText}>
-                        <IconLucide
-                          name="CircleAlert"
-                          size={20}
-                          color={Colors.lightBlue}
-                        />
+                <View>
+                  <View style={styles.Card}>
+                    <View style={styles.cardFirstRow}>
+                      <Text style={styles.cardFirstRowText}>
+                        Linked to Testing
                       </Text>
                     </View>
-                  </View>
-                </View>
-              </View>
 
-              <View>
-                <View style={styles.Card}>
-                  <View style={styles.cardFirstRow}>
-                    <Text style={styles.cardFirstRowText}>
-                      Linked to Testing
-                    </Text>
-                  </View>
+                    <View style={styles.cardSecondRow}>
+                      <View>
+                        <Text style={styles.cardSecondRowText}>25</Text>
+                      </View>
 
-                  <View style={styles.cardSecondRow}>
-                    <View>
-                      <Text style={styles.cardSecondRowText}>25</Text>
-                    </View>
-
-                    <View>
-                      <Text style={styles.cardSecondRowText}>
-                        <IconLucide
-                          name="CircleCheck"
-                          size={20}
-                          color={Colors.lightBlue}
-                        />
-                      </Text>
+                      <View>
+                        <Text style={styles.cardSecondRowText}>
+                          <IconLucide
+                            name="CircleCheck"
+                            size={20}
+                            color={Colors.lightBlue}
+                          />
+                        </Text>
+                      </View>
                     </View>
                   </View>
                 </View>
               </View>
             </View>
           </View>
-        </View>
 
-        <View style={styles.filterContainer}>
-          <View
-            style={[
-              styles.filterInput,
-              focusedField === "textInput" && { borderColor: "#0790CF" },
-            ]}
-          >
-            <TextInput
-              placeholder="Filter by any..."
-              placeholderTextColor={Colors.gray}
-              style={styles.textInputPlaceHolderStyle}
-              value={filtered}
-              onChangeText={(text) => setFiltered(text)}
-              keyboardType="default"
-              autoCapitalize="none"
-              onFocus={() => setFocusedField("textInput")}
-              onBlur={() => setFocusedField(null)}
-            />
-          </View>
-
-          <View>
-            <Dropdown
-              containerStyle={{
-                borderRadius: 10,
-                backgroundColor: Colors.pageBackgroundColor,
-                padding: 10,
-              }}
+          <View style={styles.filterContainer}>
+            <View
               style={[
-                styles.filterdropdown,
-                focusedField === "dropDown" && { borderColor: "#0790CF" },
+                styles.filterInput,
+                focusedField === "textInput" && { borderColor: "#0790CF" },
               ]}
-              placeholderStyle={styles.dropDownPlaceHolderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              inputSearchStyle={styles.inputSearchStyle}
-              data={data}
-              maxHeight={300}
-              labelField="label"
-              valueField="value"
-              placeholder="Filter by status"
-              value={value}
-              onChange={(item) => {
-                setValue(item.value);
-              }}
-              renderItem={renderItem}
-              onFocus={() => setFocusedField("dropDown")}
-              onBlur={() => setFocusedField(null)}
-            />
+            >
+              <TextInput
+                placeholder="Filter by any..."
+                placeholderTextColor={Colors.gray}
+                style={styles.textInputPlaceHolderStyle}
+                value={filtered}
+                onChangeText={(text) => setFiltered(text)}
+                keyboardType="default"
+                autoCapitalize="none"
+                onFocus={() => setFocusedField("textInput")}
+                onBlur={() => setFocusedField(null)}
+              />
+            </View>
+
+            <View>
+              <Dropdown
+                containerStyle={{
+                  borderRadius: 10,
+                  backgroundColor: Colors.pageBackgroundColor,
+                  padding: 10,
+                }}
+                style={[
+                  styles.filterdropdown,
+                  focusedField === "dropDown" && { borderColor: "#0790CF" },
+                ]}
+                placeholderStyle={styles.dropDownPlaceHolderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                data={data}
+                maxHeight={300}
+                labelField="label"
+                valueField="value"
+                placeholder="Filter by status"
+                value={value}
+                onChange={(item) => {
+                  setValue(item.value);
+                }}
+                renderItem={renderItem}
+                onFocus={() => setFocusedField("dropDown")}
+                onBlur={() => setFocusedField(null)}
+              />
+            </View>
           </View>
+          <PatientInformationDT />
+          </ScrollView>
+          <Menu />
         </View>
-        <PatientInformationDT />
-        <Menu />
-      </View>
-    </TouchableWithoutFeedback>
-    </ScrollView>
+      </TouchableWithoutFeedback>
+   
   );
 };
 
@@ -277,16 +267,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
 
-  contentHeaderTextContainer: {
-    marginTop: 30,
-    marginHorizontal: 20,
-  },
+  
 
-  contentHeaderText: {
-    fontSize: 25,
-    color: Colors.lightBlue,
-  },
-
+  
   contentCards: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -322,7 +305,7 @@ const styles = StyleSheet.create({
   },
 
   cardFirstRowText: {
-    fontSize: 17,
+    fontSize: windowHeight / 50,
     fontWeight: 200,
     color: Colors.dark,
   },
@@ -337,7 +320,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: -30,
-    fontSize: 20,
+    fontSize: windowHeight / 55,
     fontWeight: 600,
   },
 
@@ -351,12 +334,13 @@ const styles = StyleSheet.create({
 
   filterInput: {
     justifyContent: "center",
-    padding: 10,
+    paddingLeft: 10,
     width: windowWidth * 0.45,
     height: windowHeight * 0.05,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: Colors.lightGray,
+    backgroundColor:Colors.solidWhite
   },
 
   filterdropdown: {
@@ -369,14 +353,17 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: Colors.lightGray,
+    backgroundColor:Colors.solidWhite
+
   },
 
   textInputPlaceHolderStyle: {
-    fontSize: 16,
+    fontSize: windowHeight / 60,
+  
   },
 
   dropDownPlaceHolderStyle: {
-    fontSize: 16,
+    fontSize: windowHeight / 60,
     color: Colors.gray,
   },
 

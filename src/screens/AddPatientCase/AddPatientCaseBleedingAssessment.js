@@ -84,13 +84,6 @@ const AddPatientCaseBleedingAssessment = ({ navigation }) => {
       >
         <Headers />
 
-        <View>
-          <View style={styles.menuHamburger}>
-            <TouchableOpacity onPress={() => navigation.openDrawer()}>
-              <IconLucide name="AlignJustify" size={23} color={"black"} />
-            </TouchableOpacity>
-          </View>
-        </View>
         <View style={styles.Container}>
           <View style={styles.loginContainer}>
             <View style={styles.pageHeader}>
@@ -114,25 +107,32 @@ const AddPatientCaseBleedingAssessment = ({ navigation }) => {
                 </Text>
               </View>
 
-
-
               <View style={styles.radioContainer}>
                 <RadioButton.Group
-                  onValueChange={(newValue) => setRadioValue(newValue)}
+                  onValueChange={(newValue) => {
+                    setRadioValue(newValue);
+                    if (newValue === "second") {
+                      navigation.navigate("AddPatientCaseBleedingAssessmentNo");
+                    }
+                  }}
                   value={radioValue}
                 >
                   <View>
                     <Text>Yes</Text>
-                    <RadioButton.Android value="first" color={Colors.lightBlue} />
+                    <RadioButton.Android
+                      value="first"
+                      color={Colors.lightBlue}
+                    />
                   </View>
                   <View>
                     <Text>No</Text>
-                    <RadioButton.Android value="second" color={Colors.lightBlue} />
+                    <RadioButton.Android
+                      value="second"
+                      color={Colors.lightBlue}
+                    />
                   </View>
                 </RadioButton.Group>
               </View>
-
-
             </View>
 
             <View style={styles.buttonConatainer}>
@@ -145,7 +145,9 @@ const AddPatientCaseBleedingAssessment = ({ navigation }) => {
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => navigation.navigate("AddPatientCaseAssmentReview")}
+                onPress={() =>
+                  navigation.navigate("AddPatientCaseAssmentReview")
+                }
               >
                 <View style={styles.NextButton}>
                   <Text style={styles.NextButtonText}>Next</Text>
@@ -358,12 +360,12 @@ const styles = StyleSheet.create({
     color: Colors.dark,
   },
 
-  radioContainer:{
+  radioContainer: {
     justifyContent: "flex-start",
     alignItems: "flex-start",
     marginHorizontal: 20,
     marginTop: 10,
-  }
+  },
 });
 
 export default AddPatientCaseBleedingAssessment;

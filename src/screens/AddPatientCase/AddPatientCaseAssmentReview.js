@@ -89,13 +89,7 @@ const AddPatientCaseAssmentReview = ({ navigation }) => {
       >
         <Headers />
 
-        <View>
-          <View style={styles.menuHamburger}>
-            <TouchableOpacity onPress={() => navigation.openDrawer()}>
-              <IconLucide name="AlignJustify" size={23} color={"black"} />
-            </TouchableOpacity>
-          </View>
-        </View>
+       
 
         <ScrollView>
         <View style={styles.Container}>
@@ -328,8 +322,6 @@ const styles = StyleSheet.create({
     padding:10,
     paddingBottom:40,
     borderRadius:10
-
-
   },
 
 
@@ -511,7 +503,40 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "500",
     Color: "red",
+  },
+
+  statusContainer: {
+    marginHorizontal: 10,
+    marginTop: 20,
+    gap:10
+  },
+
+  StatusText: {
+    fontSize: 22,
+    fontWeight: "500",
+    Color: "red",
+  },
+
+ statusKeyText: {
+    fontSize: 20,
+    fontWeight: "400",
+    Color: "red", 
+  },
+
+
+ screenOfficerContainer:{
+    marginHorizontal: 10,
+    marginTop: 10,
+    gap:10
+  },
+
+
+screenOfficerText:{
+    fontSize: 22,
+    fontWeight: "500",
+    Color: "red",
   }
+
 });
 
 export default AddPatientCaseAssmentReview;

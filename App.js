@@ -1,3 +1,4 @@
+import React, { useEffect, useReducer, useMemo } from "react";
 import "react-native-gesture-handler";
 import { NavigationContainer } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
@@ -15,6 +16,9 @@ import * as LucideIcons from "lucide-react-native";
 import AddPatientCase from "./src/screens/AddPatientCase/AddPatientCase";
 import AddPatientCaseBleedingAssessment from "./src/screens/AddPatientCase/AddPatientCaseBleedingAssessment";
 import AddPatientCaseAssmentReview from "./src/screens/AddPatientCase/AddPatientCaseAssmentReview";
+import AddPatientCaseBleedingAssessmentNo from "./src/screens/AddPatientCase/AddPatientCaseBleedingAssessmentNo";
+import Profile from "./src/screens/Profile/Profile";
+import PatientInformationActionBTN from "./src/screens/PatientInformation/PatientInformationActionBTN";
 
 const IconLucide = ({ name, size = 24, color = "black" }) => {
   const LucideIcon = LucideIcons[name]; // Access the icon dynamically
@@ -27,20 +31,172 @@ const IconLucide = ({ name, size = 24, color = "black" }) => {
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator(); // Create the Stack Navigator
 
-// Define the Stack Navigator for Login (Auth)
-const AuthStack = () => {
-  return (
-    <Stack.Navigator initialRouteName="Login">
-      <Stack.Screen
-        name="Login"
-        component={Login}
-        options={{ headerShown: false }} // Hide the header for the Login screen
-      />
-    </Stack.Navigator>
-  );
+const screenOptionStyle = {
+  headerShown: false,
 };
 
 export default function App() {
+  const initialState = {
+    isLoading: true,
+    token: null,
+    user: null,
+    role: null,
+  };
+
+  const loginReducer = (prevState, action) => {
+    switch (action.type) {
+      case "RETRIEVE_TOKEN":
+        return {
+          ...prevState,
+          token: action.token,
+          isLoading: false,
+          user: action.user,
+          role: action.role,
+        };
+      case "LOGIN":
+        return {
+          ...prevState,
+          token: action.token,
+          isLoading: false,
+          user: action.user,
+          role: action.role,
+        };
+      case "LOGOUT":
+        return {
+          ...prevState,
+          isLoading: false,
+          token: null,
+          user: null,
+          role: null,
+        };
+    }
+  };
+
+  const [loginState, dispatch] = useReducer(loginReducer, initialState);
+
+  const authContext = useMemo(() => ({
+    // otpSignIn: async (user_id,otp) => {
+    //   const postObj = JSON.stringify({
+    //     doctor_id:user_id,
+    //     otp:otp
+    //   })
+    //   axios
+    //         .post(${baseURL}/api/verify-doctor, postObj,{headers:{"Content-Type": "application/json"}})
+    //         .then((res) => {
+    //           if (res.data.status === true) {
+    //             const items = [
+    //               ["token", "my token"],
+    //               ["user", JSON.stringify(res.data.data)],
+    //               ["role", "doctor"],
+    //             ];
+    //             AsyncStorage.multiSet(items, () => {
+    //               console.log("asyncstorage set successfully");
+    //             });
+    //             dispatch({
+    //               type: "LOGIN",
+    //               token: res.data.token,
+    //               user: JSON.stringify(res.data.data),
+    //               role: "doctor",
+    //             });
+    //           } else {
+    //             alert(res.data.message);
+    //           }
+    //         })
+    //         .catch((err) => {
+    //           alert(err.message);
+    //         });
+    // },
+    signIn: async (credential, password) => {
+      const postObj = JSON.stringify({
+        credential: credential,
+        password: password,
+      });
+
+      console.log(postObj);
+
+      axios.defaults.headers = {
+        "Content-Type": "application/json",
+      };
+      axios
+        .post(`${baseURL}/auth/login/creds`, postObj)
+        .then((res) => {
+          if (res.data.success === true) {
+            const items = [
+              ["token", res.data.data.token],
+              ["user", JSON.stringify(res.data.data)],
+              ["role", res.data.data.role.name],
+            ];
+            AsyncStorage.multiSet(items, () => {
+              console.log("asyncstorage set successfully");
+            });
+            dispatch({
+              type: "LOGIN",
+              token: res.data.data.token,
+              user: JSON.stringify(res.data.data),
+              role: res.data.data.role.name,
+            });
+          } else {
+            alert(res.data.message);
+          }
+        })
+        .catch((error) => {
+          if (error.status === 401) {
+            alert("Wrong credentials");
+          } else {
+            alert("Something went wrong");
+          }
+        });
+    },
+
+    signOut: async () => {
+      try {
+        await AsyncStorage.multiRemove(["token", "user"]);
+      } catch (error) {
+        console.log(error);
+      }
+      dispatch({ type: "LOGOUT" });
+    },
+  }));
+
+  const retrieveData = async () => {
+    let token;
+    let user;
+    let role;
+    try {
+      const data = await AsyncStorage.multiGet(["token", "user", "role"]);
+      const new_data = data.map((entry) => entry[1]);
+      token = new_data[0];
+      user = new_data[1];
+      role = new_data[2];
+
+      dispatch({
+        type: "RETRIEVE_TOKEN",
+        token: token,
+        user: user,
+        role: role,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    retrieveData();
+  }, []);
+
+  // Define the Stack Navigator for Login (Auth)
+  const AuthStack = () => {
+    return (
+      <Stack.Navigator initialRouteName="Login">
+        <Stack.Screen
+          name="Login"
+          component={Login}
+          options={{ headerShown: false }} // Hide the header for the Login screen
+        />
+      </Stack.Navigator>
+    );
+  };
+
   return (
     <NavigationContainer>
       <Stack.Navigator>
@@ -52,6 +208,10 @@ export default function App() {
           options={{ headerShown: false }} // Hide header for Auth Stack
         />
         <Stack.Screen name="AddPatientCase" component={AddPatientCase} />
+        <Stack.Screen
+          name="AddPatientCaseBleedingAssessmentNo"
+          component={AddPatientCaseBleedingAssessmentNo}
+        />
 
         {/* stack navigation for several screen section */}
 
@@ -185,12 +345,46 @@ export default function App() {
               />
 
               <Drawer.Screen
+                name="AddPatientCaseBleedingAssessmentNo"
+                component={AddPatientCaseBleedingAssessmentNo}
+                options={{
+                  drawerItemStyle: { display: "none" }, // Hides from Drawer
+                }}
+              />
+
+              <Drawer.Screen
                 name="AddPatientCaseAssmentReview"
                 component={AddPatientCaseAssmentReview}
                 options={{
                   drawerItemStyle: { display: "none" }, // Hides from Drawer
                 }}
               />
+
+              <Drawer.Screen
+                name="Dashboard"
+                component={Dashboard}
+                options={{
+                  drawerItemStyle: { display: "none" }, // Hides from Drawer
+                }}
+              />
+
+              <Drawer.Screen
+                name="Profile"
+                component={Profile}
+                options={{
+                  drawerItemStyle: { display: "none" }, // Hides from Drawer
+                }}
+              />
+
+
+              <Drawer.Screen
+                name="PatientInformationActionBTN"
+                component={PatientInformationActionBTN}
+                options={{
+                  drawerItemStyle: { display: "none" }, // Hides from Drawer
+                }}
+              />
+
             </Drawer.Navigator>
           )}
         </Stack.Screen>
