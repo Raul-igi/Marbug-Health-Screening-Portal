@@ -14,7 +14,7 @@ import {
   import React, { useState } from "react";
   import Colors from "../../constants/Colors";
   import { useNavigation } from "@react-navigation/native";
-  import Menu from "../../components/Menu";
+  import Menu from "../../components/Menu/Menu";
   import Headers from "../../components/Headers";
   import { MaterialIcons } from "@expo/vector-icons";
   import * as LucideIcons from "lucide-react-native";

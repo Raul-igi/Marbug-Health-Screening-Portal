@@ -13,7 +13,7 @@ import React, { useState, useEffect } from "react";
 import Colors from "../../constants/Colors";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import Menu from "../../components/Menu";
+import Menu from "../../components/Menu/Menu";
 import Headers from "../../components/Headers";
 import { Dropdown } from "react-native-element-dropdown";
 import PatientInformationDT from "./PatientInformationDT";

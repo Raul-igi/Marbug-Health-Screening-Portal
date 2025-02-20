@@ -205,13 +205,7 @@ export default function App() {
         <NavigationContainer>
           <AuthContext.Provider value={authContext}>
             <Stack.Navigator screenOptions={{headerShown:false}}>
-              {/* stack navigation for several screen section */}
-              {/* The first screen is the Auth Stack (Login screen) */}
-              
-
-              {/* stack navigation for several screen section */}
-
-              {/* After login, navigate to the Drawer Navigator (Main App) */}
+             
               <Stack.Screen name="mainScreen" options={{ headerShown: false }}>
                 {() => (
                   <Drawer.Navigator
@@ -386,6 +380,11 @@ export default function App() {
               </Stack.Screen>
               <Stack.Screen name="Dashboard" component={Dashboard} />
               <Stack.Screen name="AddPatientCase" component={AddPatientCase} />
+              <Stack.Screen name="PatientInformation" component={PatientInformation} />
+              <Stack.Screen name="OfflineData" component={OfflineData} />
+              <Stack.Screen name="Profile" component={Profile} />
+
+
               <Stack.Screen
                 name="AddPatientCaseBleedingAssessmentNo"
                 component={AddPatientCaseBleedingAssessmentNo}

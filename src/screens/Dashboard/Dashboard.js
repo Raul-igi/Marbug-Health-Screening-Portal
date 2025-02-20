@@ -15,7 +15,7 @@ import Colors from "../../constants/Colors";
 import { Button } from "react-native-elements";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import Menu from "../../components/Menu";
+import Menu from "../../components/Menu/Menu";
 import Headers from "../../components/Headers";
 import { Dropdown } from "react-native-element-dropdown";
 import DashboardDonutChart from "./DashboardDonutChart";

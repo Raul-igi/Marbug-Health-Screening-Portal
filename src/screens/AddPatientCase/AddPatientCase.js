@@ -17,7 +17,7 @@ import Colors from "../../constants/Colors";
 import { MaterialIcons } from "@expo/vector-icons"; // Importing icon library
 import { Dropdown } from "react-native-element-dropdown";
 import Headers from "../../components/Headers";
-import Menu from "../../components/Menu";
+import Menu from "../../components/Menu/Menu";
 import apiService from "../../apiService/apiService";
 import { RadioButton, Checkbox } from "react-native-paper";
 import { List } from "react-native-paper";
