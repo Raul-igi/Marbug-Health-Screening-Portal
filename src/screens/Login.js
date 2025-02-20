@@ -11,11 +11,13 @@ import {
   Platform,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState } from "react";
 import Colors from "../constants/Colors";
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { AuthContext } from "../context/context";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -23,8 +25,23 @@ const windowHeight = Dimensions.get("window").height;
 const Login = ({ navigation }) => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
-  const [passwordVisible, setPasswordVisible] = useState(false); // State to toggle visibility
-  const [focusedField, setFocusedField] = useState(null); // State to track focused field
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [focusedField, setFocusedField] = useState(null); 
+  const [loading,setLoading]=useState(false);
+
+  const {signIn} = React.useContext(AuthContext)
+
+  const login = () => {
+    if (!userName || !password) {
+      alert("Enter username and password!");
+    } else {
+      setLoading(true);
+      signIn(userName, password);
+      setTimeout(() => {
+        setLoading(false);
+      }, 10000);
+}
+};
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -121,9 +138,15 @@ const Login = ({ navigation }) => {
               </View>
             </View>
 
-            <TouchableOpacity onPress={() => navigation.navigate("mainScreen")}>
+            <TouchableOpacity onPress={login}>
               <View style={styles.loginButton}>
+                {loading?(
+                  <View>
+                    <ActivityIndicator color={Colors.solidWhite}/>
+                  </View>
+                ):(
                 <Text style={styles.loginButtonText}>Login</Text>
+                )}
               </View>
             </TouchableOpacity>
           </View>

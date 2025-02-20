@@ -56,6 +56,7 @@ const PatientInformationDT = () => {
 
   const toggleFirstModal = (caseDetails = null) => {
     if (caseDetails) {
+      console.log(caseDetails)
       setSelectedCase(caseDetails);
       setShow(true);
     } else {
@@ -70,19 +71,21 @@ const PatientInformationDT = () => {
   const formatDate = (isoString) => {
     const date = new Date(isoString);
   
-    
+    // Extract components
     const day = date.getDate();
-    const month = date.getMonth() + 1; 
+    const month = date.getMonth() + 1; // Months are zero-based
     const year = date.getFullYear();
   
-    
-    const hours = date.getHours() % 12 || 12; 
+    // Format time in 12-hour format with AM/PM
+    const hours = date.getHours() % 12 || 12; // Convert 0 to 12 for AM/PM format
     const minutes = String(date.getMinutes()).padStart(2, "0");
     const seconds = String(date.getSeconds()).padStart(2, "0");
     const ampm = date.getHours() >= 12 ? "PM" : "AM";
   
     return `${day}/${month}/${year}, ${hours}:${minutes}:${seconds} ${ampm}`;
   };
+  
+  
   
 
   
@@ -133,31 +136,19 @@ const PatientInformationDT = () => {
 
   const fetchCaseDetailsById = async (caseId) => {
     try {
-      // Fetch data from API
+   
       const response = await apiService.fetchCaseById(caseId);
-  
-      if (!response || !response.data || !response.data.data) {
-        throw new Error("Invalid API response format for case details");
+      console.log(response)
+      if (response.success) {
+        toggleFirstModal(response.data)
       }
   
-      console.log(`Case Details for ${caseId}:`, response.data.data);
-      return response.data.data;
     } catch (error) {
       console.error(`Error fetching details for case ${caseId}:`, error.toString());
       return null; // Return null if fetching fails
     }
   };
   
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -195,7 +186,7 @@ const PatientInformationDT = () => {
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() =>{navigation.navigate("AddPatientCase")}}>
           <View style={styles.buttons}>
             <IconLucide name="Plus" size={20} color={Colors.solidWhite} />
             <Text style={styles.buttonText}>New Case</Text>
@@ -243,7 +234,7 @@ const PatientInformationDT = () => {
                 right={(props) => (
                   <TouchableOpacity
                     style={styles.viewStatus}
-                    onPress={() => toggleFirstModal(caseDetails)}
+                    onPress={() => fetchCaseDetailsById(caseDetails.id)}
                   >
                     <IconLucide name="Eye" size={20} color={Colors.lightBlue} />
                   </TouchableOpacity>
@@ -256,7 +247,7 @@ const PatientInformationDT = () => {
         <Modal
           isVisible={show}
           backdropOpacity={0.5} // Disable the black background
-          onBackdropPress={toggleFirstModal}
+          onBackdropPress={()=>toggleFirstModal()}
           //animationType="fade"
         >
           <View style={styles.modalContent}>
@@ -270,15 +261,15 @@ const PatientInformationDT = () => {
                   <View style={styles.modalSubHeader}>
                     <Text style={styles.modalSubHeaderText}>
                       Showing suspect details for{" "}
-                      {selectedCase.casePersonalInfo.firstName}
+                      {selectedCase.casePersonalInfo?.firstName}
                     </Text>
                   </View>
 
                   <View style={styles.userDescription}>
                     <Text style={styles.userTextDescription}>Name</Text>
                     <Text style={styles.userTextDescription}>
-                      {selectedCase.casePersonalInfo.firstName}{" "}
-                      {selectedCase.casePersonalInfo.lastName}
+                      {selectedCase.casePersonalInfo?.firstName}{" "}
+                      {selectedCase.casePersonalInfo?.lastName}
                     </Text>
                   </View>
 
@@ -287,7 +278,7 @@ const PatientInformationDT = () => {
                   <View style={styles.userDescription}>
                     <Text style={styles.userTextDescription}>Telephone</Text>
                     <Text style={styles.userTextDescription}>
-                      {selectedCase.casePersonalInfo.telephone}
+                      {selectedCase.casePersonalInfo?.telephone}
                     </Text>
                   </View>
 
@@ -296,7 +287,7 @@ const PatientInformationDT = () => {
                   <View style={styles.userDescription}>
                     <Text style={styles.userTextDescription}>Status</Text>
                     <Text style={styles.userTextDescription}>
-                      {selectedCase.status.name}
+                      {selectedCase.status?.name}
                     </Text>
                   </View>
 
@@ -326,8 +317,8 @@ const PatientInformationDT = () => {
                   <View style={styles.userDescription}>
                     <Text style={styles.userTextDescription}>Name</Text>
                     <Text style={styles.userTextDescription}>
-                    {selectedCase.casePersonalInfo.firstName}{" "}
-                    {selectedCase.casePersonalInfo.lastName}
+                    {selectedCase.casePersonalInfo?.firstName}{" "}
+                    {selectedCase.casePersonalInfo?.lastName}
                     </Text>
                   </View>
 
@@ -337,7 +328,7 @@ const PatientInformationDT = () => {
                     <Text style={styles.userTextDescription}>
                       Health Center
                     </Text>
-                    <Text style={styles.userTextDescription}>{selectedCase.healthFacility.name}</Text>
+                    <Text style={styles.userTextDescription}>{selectedCase.healthFacility?.name}</Text>
                   </View>
 
                   <View style={styles.separator} />
@@ -364,12 +355,12 @@ const PatientInformationDT = () => {
 
                   <View style={styles.userDescription}>
                     <Text style={styles.userTextDescription}>Name</Text>
-                    <Text style={styles.userTextDescription}>{JSON.stringify(selectedCase.screenerPersonalInfo?.firstName)}</Text>
+                    <Text style={styles.userTextDescription}>{selectedCase.screenerPersonalInfo?.firstName || 'N/A'}</Text>
                   </View>
 
                   <View style={styles.userDescription}>
                     <Text style={styles.userTextDescription}>Phone</Text>
-                    <Text style={styles.userTextDescription}>{selectedCase.screenerPersonalInfo?.telephone}</Text>
+                    <Text style={styles.userTextDescription}>{selectedCase.screenerPersonalInfo?.telephone || "N/A"}</Text>
                   </View>
 
                   <View style={styles.separator} />
@@ -379,9 +370,18 @@ const PatientInformationDT = () => {
                   </View>
 
                   <View style={styles.historyContainer}>
+                  {selectedCase.statusTracks.length === 0 && (
+
                     <Text style={styles.historyText}>
-                      No status history available.
+                     No status history available.
                     </Text>
+                  )}
+
+                  {/* {selectedCase.statusTracks.length>0 && (
+                    selectedCase.statusTracks.map(track=>(
+                      <Text>{track.name}</Text>
+                    ))
+                  )} */}
                   </View>
                 </>
               ) : (

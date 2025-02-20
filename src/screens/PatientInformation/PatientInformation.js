@@ -9,7 +9,7 @@ import {
   Keyboard,
   ScrollView,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Colors from "../../constants/Colors";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -18,6 +18,7 @@ import Headers from "../../components/Headers";
 import { Dropdown } from "react-native-element-dropdown";
 import PatientInformationDT from "./PatientInformationDT";
 import * as LucideIcons from "lucide-react-native";
+import apiService from "../../apiService/apiService";
 
 const IconLucide = ({ name, size = 24, color = "black" }) => {
   const LucideIcon = LucideIcons[name];
@@ -52,6 +53,9 @@ const PatientInformation = () => {
   const [filtered, setFiltered] = useState("");
   const [value, setValue] = useState(null);
 
+  const [loading, setLoading] = useState(true);
+  const [statusCase, setStatusCase] = useState([]);
+
   const renderItem = (item) => {
     const isSelected = item.value === value;
     return (
@@ -71,125 +75,80 @@ const PatientInformation = () => {
     );
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const data = await apiService.fetchDashboardStatusCase();
+        console.log("Fetched status cases:", data);
+
+        setStatusCase(data);
+      } catch (error) {
+        console.error("Error fetching data:", error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
-    
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.maincontainer}>
-          <Headers />
-          <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={styles.contentContainer}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.maincontainer}>
+        <Headers />
+        <ScrollView showsVerticalScrollIndicator={false}>
+
+
+
+
+          <View >
             
-
-            <View>
-              <View style={styles.contentCards1}>
-                <View>
-                  <View style={styles.Card}>
-                    <View style={styles.cardFirstRow}>
-                      <Text style={styles.cardFirstRowText}>
-                        Total Screenings
-                      </Text>
-                    </View>
-
-                    <View style={styles.cardSecondRow}>
+              <View>
+                {statusCase.length > 0 ? (
+                  <View style={styles.contentCards1}>
+                    {statusCase.map((item) => (
                       <View>
-                        <Text style={styles.cardSecondRowText}>130</Text>
-                      </View>
+                        <View style={styles.Card}>
+                          <View style={styles.cardFirstRow}>
+                            <Text style={styles.cardFirstRowText}>
+                              {item.name}
+                            </Text>
+                          </View>
 
-                      <View>
-                        <Text style={styles.cardSecondRowText}>
-                          <IconLucide
-                            name="Users"
-                            size={20}
-                            color={Colors.lightBlue}
-                          />
-                        </Text>
+                          <View style={styles.cardSecondRow}>
+                            <View>
+                              <Text style={styles.cardSecondRowText}>
+                                {item.count}
+                              </Text>
+                            </View>
+
+                            <View>
+                              <Text style={styles.cardSecondRowText}>
+                                <IconLucide
+                                  name="Users"
+                                  size={20}
+                                  color={item.color || Colors.lightBlue}
+                                />
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
                       </View>
-                    </View>
+                    ))}
                   </View>
-                </View>
-
-                <View>
-                  <View style={styles.Card}>
-                    <View style={styles.cardFirstRow}>
-                      <Text style={styles.cardFirstRowText}>
-                        Test for Other Diseases{" "}
-                      </Text>
-                    </View>
-
-                    <View style={styles.cardSecondRow}>
-                      <View>
-                        <Text style={styles.cardSecondRowText}>105</Text>
-                      </View>
-
-                      <View>
-                        <Text style={styles.cardSecondRowText}>
-                          <IconLucide
-                            name="Clock"
-                            size={20}
-                            color={Colors.lightBlue}
-                          />
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                </View>
-              </View>
-
-              <View style={styles.contentCards2}>
-                <View>
-                  <View style={styles.Card}>
-                    <View style={styles.cardFirstRow}>
-                      <Text style={styles.cardFirstRowText}>
-                        Isolate and Investigate
-                      </Text>
-                    </View>
-
-                    <View style={styles.cardSecondRow}>
-                      <View>
-                        <Text style={styles.cardSecondRowText}>500</Text>
-                      </View>
-
-                      <View>
-                        <Text style={styles.cardSecondRowText}>
-                          <IconLucide
-                            name="CircleAlert"
-                            size={20}
-                            color={Colors.lightBlue}
-                          />
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                </View>
-
-                <View>
-                  <View style={styles.Card}>
-                    <View style={styles.cardFirstRow}>
-                      <Text style={styles.cardFirstRowText}>
-                        Linked to Testing
-                      </Text>
-                    </View>
-
-                    <View style={styles.cardSecondRow}>
-                      <View>
-                        <Text style={styles.cardSecondRowText}>25</Text>
-                      </View>
-
-                      <View>
-                        <Text style={styles.cardSecondRowText}>
-                          <IconLucide
-                            name="CircleCheck"
-                            size={20}
-                            color={Colors.lightBlue}
-                          />
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                </View>
+                ) : (
+                  <Text>No status cases available</Text>
+                )}
               </View>
             </View>
-          </View>
+        
+
+
+
+
+
+
 
           <View style={styles.filterContainer}>
             <View
@@ -241,11 +200,10 @@ const PatientInformation = () => {
             </View>
           </View>
           <PatientInformationDT />
-          </ScrollView>
-          <Menu />
-        </View>
-      </TouchableWithoutFeedback>
-   
+        </ScrollView>
+        <Menu />
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -263,20 +221,16 @@ const styles = StyleSheet.create({
     width: 30,
   },
 
-  contentContainer: {
-    marginHorizontal: 20,
-  },
+ 
 
-  
-
-  
   contentCards: {
     flexDirection: "row",
     justifyContent: "space-between",
   },
 
   contentCards1: {
-    flexDirection: "row",
+   flexDirection: "row",
+    flexWrap: "wrap", // break the row and go the next row
     justifyContent: "center",
     alignItems: "center",
     gap: 10,
@@ -340,7 +294,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: Colors.lightGray,
-    backgroundColor:Colors.solidWhite
+    backgroundColor: Colors.solidWhite,
   },
 
   filterdropdown: {
@@ -353,13 +307,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: Colors.lightGray,
-    backgroundColor:Colors.solidWhite
-
+    backgroundColor: Colors.solidWhite,
   },
 
   textInputPlaceHolderStyle: {
     fontSize: windowHeight / 60,
-  
   },
 
   dropDownPlaceHolderStyle: {

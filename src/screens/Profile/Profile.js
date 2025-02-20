@@ -69,7 +69,7 @@ import {
                 <View style={styles.infoMainContainer}>
                   <View style={styles.infoContainer}>
                     <View style={styles.profileName}>
-                      <IconLucide name="User" size={23} color={Colors.Green} />
+                      <IconLucide name="User" size={23} color={Colors.lightBlue} />
                       <Text style={styles.profileNameText}>Name</Text>
                     </View>
   
@@ -83,7 +83,7 @@ import {
                       <IconLucide
                         name="CalendarClock"
                         size={23}
-                        color={Colors.Green}
+                        color={Colors.lightBlue}
                       />
   
                       <Text style={styles.dateInfoText}>Created At</Text>
@@ -103,7 +103,7 @@ import {
                 <View style={styles.infoMainContainer}>
                   <View style={styles.infoContainer}>
                     <View style={styles.locationName}>
-                      <IconLucide name="MapPin" size={23} color={Colors.Green} />
+                      <IconLucide name="MapPin" size={23} color={Colors.lightBlue} />
                       <Text style={styles.locationNameText}>Name</Text>
                     </View>
   
@@ -117,7 +117,7 @@ import {
                       <IconLucide
                         name="SignpostBig"
                         size={23}
-                        color={Colors.Green}
+                        color={Colors.lightBlue}
                       />
                       <Text style={styles.locationNameText}>Level</Text>
                     </View>
@@ -136,7 +136,7 @@ import {
                 <View style={styles.infoMainContainer}>
                   <View style={styles.infoContainer}>
                     <View style={styles.locationName}>
-                      <IconLucide name="MapPin" size={23} color={Colors.Green} />
+                      <IconLucide name="MapPin" size={23} color={Colors.lightBlue} />
                       <Text style={styles.locationNameText}>Name</Text>
                     </View>
   
@@ -248,7 +248,7 @@ import {
       borderRadius: 10,
       marginTop: 50,
       //borderWidth: 1,
-      //borderColor: Colors.Green,
+      //borderColor: Colors.lightBlue,
     },
   
     pictureContainer: {
@@ -261,7 +261,7 @@ import {
       height: 70,
       width: 70,
       borderWidth: 1,
-      borderColor: Colors.Green,
+      borderColor: Colors.lightBlue,
       //marginTop:30
     },
   
@@ -349,12 +349,12 @@ import {
       backgroundColor: Colors.solidWhite,
       borderRadius: 10,
       borderWidth: 1,
-      borderColor: Colors.Green,
+      borderColor: Colors.lightBlue,
       
     },
   
     changePasswordButtonText: {
-      color: Colors.Green,
+      color: Colors.lightBlue,
       fontSize: 14,
       fontWeight: 700,
     },
@@ -367,13 +367,13 @@ import {
       backgroundColor: Colors.solidWhite,
       borderRadius: 10,
       borderWidth: 1,
-      borderColor: Colors.Green,
+      borderColor: Colors.lightBlue,
       marginTop: 10,
       
     },
   
     changePasswordButtonText2: {
-      color: Colors.Green,
+      color: Colors.lightBlue,
       fontSize: 14,
       fontWeight: 700,
     },

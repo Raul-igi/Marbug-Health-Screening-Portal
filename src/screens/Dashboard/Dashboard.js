@@ -59,10 +59,10 @@ const data = [
   { label: "Kigeme DH", value: "10" },
 ];
 
-const Dashboard = () => {
+const Dashboard = ({navigation}) => {
   const [focusedField, setFocusedField] = useState(null);
   const [searchText, setSearchText] = useState("");
-  const navigation = useNavigation();
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [value, setValue] = useState(null);
 
   const [startDate, setStartDate] = useState(new Date());
@@ -73,6 +73,10 @@ const Dashboard = () => {
 
   const [loading, setLoading] = useState(true);
   const [statusCase, setStatusCase] = useState([]);
+
+  const handleCategoryChange = (newCategoryId) => {
+    setSelectedCategoryId(newCategoryId);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -138,7 +142,7 @@ const Dashboard = () => {
           <View style={styles.maincontainer}>
             <Headers />
 
-            <SwitchCategory />
+            <SwitchCategory onCategoryChange={handleCategoryChange} />
             <View style={styles.contentContainer}>
               <View style={styles.userNameWelcomeContainer}>
                 <Text style={styles.userNameWelcomeText1}>Welcome back</Text>
@@ -209,7 +213,13 @@ const Dashboard = () => {
 
                 <TouchableOpacity
                   onPress={() => {
-                    navigation.navigate("AddPatientCase");
+                    navigation.reset({
+                      index: 0,
+                      routes: [{ name: "AddPatientCase" }],
+                    });
+                    navigation.navigate("AddPatientCase", {
+                      id: selectedCategoryId,
+                    });
                   }}
                 >
                   <View style={styles.buttonWithIcon1}>

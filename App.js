@@ -1,5 +1,6 @@
 import React, { useEffect, useReducer, useMemo } from "react";
 import "react-native-gesture-handler";
+import { ActivityIndicator, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -9,6 +10,7 @@ import HealthFacilities from "./src/screens/HealthFacilities";
 import Dashboard from "./src/screens/Dashboard/Dashboard";
 import CustomDrawerContent from "./src/components/CustomDrawerContent";
 import Login from "./src/screens/Login";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import mainScreen from "./src/screens/mainScreen";
 import RoutineCare from "./src/screens/RoutineCare/RoutineCare";
 import OfflineData from "./src/screens/OfflineData/OfflineData";
@@ -19,6 +21,8 @@ import AddPatientCaseAssmentReview from "./src/screens/AddPatientCase/AddPatient
 import AddPatientCaseBleedingAssessmentNo from "./src/screens/AddPatientCase/AddPatientCaseBleedingAssessmentNo";
 import Profile from "./src/screens/Profile/Profile";
 import PatientInformationActionBTN from "./src/screens/PatientInformation/PatientInformationActionBTN";
+import { AuthContext } from "./src/context/context";
+import axios from 'axios';
 
 const IconLucide = ({ name, size = 24, color = "black" }) => {
   const LucideIcon = LucideIcons[name]; // Access the icon dynamically
@@ -106,6 +110,8 @@ export default function App() {
     //           alert(err.message);
     //         });
     // },
+
+    //signin section
     signIn: async (credential, password) => {
       const postObj = JSON.stringify({
         credential: credential,
@@ -118,8 +124,9 @@ export default function App() {
         "Content-Type": "application/json",
       };
       axios
-        .post(`${baseURL}/auth/login/creds`, postObj)
+        .post(`https://test.ohereza.rw/api-hs/auth/login`, postObj)
         .then((res) => {
+          console.log(res.data)
           if (res.data.success === true) {
             const items = [
               ["token", res.data.data.token],
@@ -185,210 +192,224 @@ export default function App() {
   }, []);
 
   // Define the Stack Navigator for Login (Auth)
-  const AuthStack = () => {
+  // const AuthStack = () => {
+  if (loginState.isLoading) {
     return (
-      <Stack.Navigator initialRouteName="Login">
-        <Stack.Screen
-          name="Login"
-          component={Login}
-          options={{ headerShown: false }} // Hide the header for the Login screen
-        />
-      </Stack.Navigator>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#000" />
+      </View>
     );
-  };
+  } else {
+    if (loginState.token !== null) {
+      return (
+        <NavigationContainer>
+          <AuthContext.Provider value={authContext}>
+            <Stack.Navigator screenOptions={{headerShown:false}}>
+              {/* stack navigation for several screen section */}
+              {/* The first screen is the Auth Stack (Login screen) */}
+              
 
-  return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        {/* stack navigation for several screen section */}
-        {/* The first screen is the Auth Stack (Login screen) */}
-        <Stack.Screen
-          name="Auth"
-          component={AuthStack}
-          options={{ headerShown: false }} // Hide header for Auth Stack
-        />
-        <Stack.Screen name="AddPatientCase" component={AddPatientCase} />
-        <Stack.Screen
-          name="AddPatientCaseBleedingAssessmentNo"
-          component={AddPatientCaseBleedingAssessmentNo}
-        />
+              {/* stack navigation for several screen section */}
 
-        {/* stack navigation for several screen section */}
-
-        {/* After login, navigate to the Drawer Navigator (Main App) */}
-        <Stack.Screen name="mainScreen" options={{ headerShown: false }}>
-          {() => (
-            <Drawer.Navigator
-              screenOptions={{
-                headerShown: false,
-                drawerActiveTintColor: "#0790CF",
-                drawerInactiveTintColor: "#000000",
-              }}
-              drawerContent={(props) => <CustomDrawerContent {...props} />} // Use custom drawer content
-            >
-              <Drawer.Screen
-                name="OverView"
-                component={Dashboard}
-                options={{
-                  drawerIcon: ({ focused, size }) => (
-                    <IconLucide
-                      name="LayoutDashboard"
-                      size={23}
-                      color={focused ? "#0790CF" : "#000000"}
+              {/* After login, navigate to the Drawer Navigator (Main App) */}
+              <Stack.Screen name="mainScreen" options={{ headerShown: false }}>
+                {() => (
+                  <Drawer.Navigator
+                    screenOptions={{
+                      headerShown: false,
+                      drawerActiveTintColor: "#0790CF",
+                      drawerInactiveTintColor: "#000000",
+                    }}
+                    drawerContent={(props) => (
+                      <CustomDrawerContent {...props} />
+                    )} // Use custom drawer content
+                  >
+                    <Drawer.Screen
+                      name="OverView"
+                      component={Dashboard}
+                      options={{
+                        drawerIcon: ({ focused, size }) => (
+                          <IconLucide
+                            name="LayoutDashboard"
+                            size={23}
+                            color={focused ? "#0790CF" : "#000000"}
+                          />
+                        ),
+                        drawerLabelStyle: {
+                          //color: "black",
+                        },
+                      }}
                     />
-                  ),
-                  drawerLabelStyle: {
-                    //color: "black",
-                  },
-                }}
-              />
 
-              <Drawer.Screen
-                name="Patient Information"
-                component={PatientInformation}
-                options={{
-                  drawerIcon: ({ focused, size }) => (
-                    <IconLucide
-                      name="UserRoundCog"
-                      size={23}
-                      color={focused ? "#0790CF" : "#000000"}
+                    <Drawer.Screen
+                      name="Patient Information"
+                      component={PatientInformation}
+                      options={{
+                        drawerIcon: ({ focused, size }) => (
+                          <IconLucide
+                            name="UserRoundCog"
+                            size={23}
+                            color={focused ? "#0790CF" : "#000000"}
+                          />
+                        ),
+                        drawerLabelStyle: {
+                          //color: "black",
+                        },
+                      }}
                     />
-                  ),
-                  drawerLabelStyle: {
-                    //color: "black",
-                  },
-                }}
-              />
 
-              <Drawer.Screen
-                name="Health Facilities"
-                component={HealthFacilities}
-                options={{
-                  drawerIcon: ({ focused, size }) => (
-                    <IconLucide
-                      name="Hospital"
-                      size={23}
-                      color={focused ? "#0790CF" : "#000000"}
+                    <Drawer.Screen
+                      name="Health Facilities"
+                      component={HealthFacilities}
+                      options={{
+                        drawerIcon: ({ focused, size }) => (
+                          <IconLucide
+                            name="Hospital"
+                            size={23}
+                            color={focused ? "#0790CF" : "#000000"}
+                          />
+                        ),
+                        drawerLabelStyle: {
+                          //color: "black",
+                        },
+                      }}
                     />
-                  ),
-                  drawerLabelStyle: {
-                    //color: "black",
-                  },
-                }}
-              />
 
-              <Drawer.Screen
-                name="Roles & Permissions"
-                component={RolesAndPermissions}
-                options={{
-                  drawerIcon: ({ focused, size }) => (
-                    <IconLucide
-                      name="ShieldHalf"
-                      size={23}
-                      color={focused ? "#0790CF" : "#000000"}
+                    <Drawer.Screen
+                      name="Roles & Permissions"
+                      component={RolesAndPermissions}
+                      options={{
+                        drawerIcon: ({ focused, size }) => (
+                          <IconLucide
+                            name="ShieldHalf"
+                            size={23}
+                            color={focused ? "#0790CF" : "#000000"}
+                          />
+                        ),
+                        drawerLabelStyle: {
+                          //color: "black",
+                        },
+                      }}
                     />
-                  ),
-                  drawerLabelStyle: {
-                    //color: "black",
-                  },
-                }}
-              />
 
-              <Drawer.Screen
-                name="Routine care"
-                component={RoutineCare}
-                options={{
-                  drawerIcon: ({ focused, size }) => (
-                    <IconLucide
-                      name="ShieldHalf"
-                      size={23}
-                      color={focused ? "#0790CF" : "#000000"}
+                    <Drawer.Screen
+                      name="Routine care"
+                      component={RoutineCare}
+                      options={{
+                        drawerIcon: ({ focused, size }) => (
+                          <IconLucide
+                            name="ShieldHalf"
+                            size={23}
+                            color={focused ? "#0790CF" : "#000000"}
+                          />
+                        ),
+                        drawerLabelStyle: {
+                          //color: "black",
+                        },
+                      }}
                     />
-                  ),
-                  drawerLabelStyle: {
-                    //color: "black",
-                  },
-                }}
-              />
 
-              <Drawer.Screen
-                name="Offline Data"
-                component={OfflineData}
-                options={{
-                  drawerIcon: ({ focused, size }) => (
-                    <IconLucide
-                      name="ShieldHalf"
-                      size={23}
-                      color={focused ? "#0790CF" : "#000000"}
+                    <Drawer.Screen
+                      name="Offline Data"
+                      component={OfflineData}
+                      options={{
+                        drawerIcon: ({ focused, size }) => (
+                          <IconLucide
+                            name="ShieldHalf"
+                            size={23}
+                            color={focused ? "#0790CF" : "#000000"}
+                          />
+                        ),
+                        drawerLabelStyle: {
+                          //color: "black",
+                        },
+                      }}
                     />
-                  ),
-                  drawerLabelStyle: {
-                    //color: "black",
-                  },
-                }}
-              />
 
-              <Drawer.Screen
-                name="AddPatientCase"
-                component={AddPatientCase}
-                options={{
-                  drawerItemStyle: { display: "none" }, // Hides from Drawer
-                }}
-              />
+                    <Drawer.Screen
+                      name="AddPatientCase"
+                      component={AddPatientCase}
+                      options={{
+                        drawerItemStyle: { display: "none" }, // Hides from Drawer
+                      }}
+                    />
 
-              <Drawer.Screen
-                name="AddPatientCaseBleedingAssessment"
-                component={AddPatientCaseBleedingAssessment}
-                options={{
-                  drawerItemStyle: { display: "none" }, // Hides from Drawer
-                }}
-              />
+                    <Drawer.Screen
+                      name="AddPatientCaseBleedingAssessment"
+                      component={AddPatientCaseBleedingAssessment}
+                      options={{
+                        drawerItemStyle: { display: "none" }, // Hides from Drawer
+                      }}
+                    />
 
-              <Drawer.Screen
+                    <Drawer.Screen
+                      name="AddPatientCaseBleedingAssessmentNo"
+                      component={AddPatientCaseBleedingAssessmentNo}
+                      options={{
+                        drawerItemStyle: { display: "none" }, // Hides from Drawer
+                      }}
+                    />
+
+                    <Drawer.Screen
+                      name="AddPatientCaseAssmentReview"
+                      component={AddPatientCaseAssmentReview}
+                      options={{
+                        drawerItemStyle: { display: "none" }, // Hides from Drawer
+                      }}
+                    />
+
+                    <Drawer.Screen
+                      name="Dashboard"
+                      component={Dashboard}
+                      options={{
+                        drawerItemStyle: { display: "none" }, // Hides from Drawer
+                      }}
+                    />
+
+                    <Drawer.Screen
+                      name="Profile"
+                      component={Profile}
+                      options={{
+                        drawerItemStyle: { display: "none" }, // Hides from Drawer
+                      }}
+                    />
+
+                    <Drawer.Screen
+                      name="PatientInformationActionBTN"
+                      component={PatientInformationActionBTN}
+                      options={{
+                        drawerItemStyle: { display: "none" }, // Hides from Drawer
+                      }}
+                    />
+                  </Drawer.Navigator>
+                )}
+              </Stack.Screen>
+              <Stack.Screen name="Dashboard" component={Dashboard} />
+              <Stack.Screen name="AddPatientCase" component={AddPatientCase} />
+              <Stack.Screen
                 name="AddPatientCaseBleedingAssessmentNo"
                 component={AddPatientCaseBleedingAssessmentNo}
-                options={{
-                  drawerItemStyle: { display: "none" }, // Hides from Drawer
-                }}
               />
-
-              <Drawer.Screen
-                name="AddPatientCaseAssmentReview"
-                component={AddPatientCaseAssmentReview}
-                options={{
-                  drawerItemStyle: { display: "none" }, // Hides from Drawer
-                }}
+            </Stack.Navigator>
+          </AuthContext.Provider>
+        </NavigationContainer>
+      );
+    } else {
+      return (
+        <NavigationContainer>
+          <AuthContext.Provider value={authContext}>
+            <Stack.Navigator initialRouteName="Login">
+              <Stack.Screen
+                name="Login"
+                component={Login}
+                options={{ headerShown: false }} // Hide the header for the Login screen
               />
+            </Stack.Navigator>
+          </AuthContext.Provider>
+        </NavigationContainer>
+      );
+    }
+  }
 
-              <Drawer.Screen
-                name="Dashboard"
-                component={Dashboard}
-                options={{
-                  drawerItemStyle: { display: "none" }, // Hides from Drawer
-                }}
-              />
-
-              <Drawer.Screen
-                name="Profile"
-                component={Profile}
-                options={{
-                  drawerItemStyle: { display: "none" }, // Hides from Drawer
-                }}
-              />
-
-
-              <Drawer.Screen
-                name="PatientInformationActionBTN"
-                component={PatientInformationActionBTN}
-                options={{
-                  drawerItemStyle: { display: "none" }, // Hides from Drawer
-                }}
-              />
-
-            </Drawer.Navigator>
-          )}
-        </Stack.Screen>
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
+  // };
 }

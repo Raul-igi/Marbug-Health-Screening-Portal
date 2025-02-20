@@ -35,7 +35,7 @@ const IconLucide = ({ name, size = 24, color = "black" }) => {
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
-const AddPatientCase = ({ navigation }) => {
+const AddPatientCase = ({ navigation, route }) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phoneNumber, setphoneNumber] = useState("");
@@ -98,43 +98,51 @@ const AddPatientCase = ({ navigation }) => {
     return data;
   }
 
-  useEffect(() => {
-    const fetchPatientCaseAssessmentData = async () => {
-      try {
-        const data = await apiService.fetchQuestions();
-        const cleanedData = addAnswerProperty(data);
-        setPatientQuestions(cleanedData);
-      } catch (error) {
-        console.error("Error fetching category:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchPatientCaseAssessmentData = async () => {
+    try {
+      const data = await apiService.fetchQuestions(route.params.id);
+      const cleanedData = addAnswerProperty(data);
+      console.log("lskjf", cleanedData.categoryQuestionGroups.length);
+      setPatientQuestions(cleanedData);
+    } catch (error) {
+      console.error("Error fetching category:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  const fetchhealthFacilitesData = async () => {
+    try {
+      setLoading(true);
+      const data = await apiService.fetchHealthFacilities();
+      //console.log(data)
+      const formattedFacilities = data.map((facility) => ({
+        label: facility.name,
+        value: facility.id,
+      }));
+      setHealthFacilitiesData(formattedFacilities);
+    } catch (error) {
+      console.error("Error fetching categories:", error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    console.log('myidididididid',route.params.id)
+    setSelectedIndex(-1);
+    setPatientQuestions([]);
     fetchPatientCaseAssessmentData();
-  }, []);
-
-  useEffect(() => {
-    const fetchhealthFacilitesData = async () => {
-      try {
-        setLoading(true);
-        const data = await apiService.fetchHealthFacilities();
-        //console.log(data)
-        const formattedFacilities = data.map((facility) => ({
-          label: facility.name,
-          value: facility.id,
-        }));
-        setHealthFacilitiesData(formattedFacilities);
-      } catch (error) {
-        console.error("Error fetching categories:", error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchhealthFacilitesData();
-  }, []);
-
+    const focusHandler = navigation.addListener("focus", () => {
+      console.log('myidididididid',route.params.id)
+      setSelectedIndex(-1);
+      setPatientQuestions([]);
+      fetchPatientCaseAssessmentData();
+      fetchhealthFacilitesData();
+    });
+    return focusHandler;
+  }, [navigation]);
 
   const handleAddPatient = async () => {
     try {
@@ -143,7 +151,6 @@ const AddPatientCase = ({ navigation }) => {
         return;
       }
 
-      
       // console.log("First Name:", firstName);
       // console.log("Last Name:", lastName);
       // console.log("Phone Number:", phoneNumber);
@@ -151,6 +158,7 @@ const AddPatientCase = ({ navigation }) => {
       // console.log("Selected Radio Answers:", selectedRadioAnswers);
 
       const response = await apiService.addPatient(
+        route.params.id,
         value,
         firstName,
         lastName,
@@ -605,7 +613,7 @@ const AddPatientCase = ({ navigation }) => {
               </View>
 
               <View style={styles.buttonConatainer}>
-                <TouchableOpacity onPress={() => navigation.navigate("")}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
                   <View style={styles.PreviousButton}>
                     <Text style={styles.PreviousButtonText}>Previous</Text>
                   </View>

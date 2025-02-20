@@ -12,8 +12,14 @@ const apiConfigs = {
 };
 
 const getToken = async () => {
-  return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUzZTlmNjBlLWMzNTQtNDg1YS1iOTcwLTVmZWIwYTg2YzdkMCIsImVtYWlsIjoiamF6enlicnVubzQ1QGdtYWlsLmNvbSIsInVzZXJOYW1lIjoiSmF6enkiLCJzdGF0dXMiOiJBQ1RJVkUiLCJwZXJtaXNzaW9ucyI6WyJDUkVBVEVfVVNFUiIsIlVQREFURV9VU0VSIiwiREVMRVRFX1VTRVIiLCJWSUVXX1VTRVIiLCJDUkVBVEVfUk9MRSIsIlVQREFURV9ST0xFIiwiREVMRVRFX1JPTEUiLCJDUkVBVEVfQ0FURUdPUlkiLCJVUERBVEVfQ0FURUdPUlkiLCJERUxFVEVfQ0FURUdPUlkiLCJDUkVBVEVfQ0FTRSIsIlVQREFURV9DQVNFIiwiREVMRVRFX0NBU0UiLCJVUERBVEVfQ0FTRV9TVEFUVVMiLCJBU1NJR05fQ0FURUdPUlkiLCJWSUVXX0RBU0hCT0FSRCIsIkNSRUFURV9IRUFMVEhfRkFDSUxJVFkiLCJVUERBVEVfSEVBTFRIX0ZBQ0lMSVRZIiwiREVMRVRFX0hFQUxUSF9GQUNJTElUWSJdLCJyb2xlIjoiU1VQRVJfQURNSU4iLCJpYXQiOjE3Mzk2OTcyNjQsImV4cCI6MTczOTg3MDA2NH0.RJLsdb72sUMtQQe8G09eWBNrSwApT9sci8WZ-7ASjzE";
+  return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUzZTlmNjBlLWMzNTQtNDg1YS1iOTcwLTVmZWIwYTg2YzdkMCIsImVtYWlsIjoiamF6enlicnVubzQ1QGdtYWlsLmNvbSIsInVzZXJOYW1lIjoiSmF6enkiLCJzdGF0dXMiOiJBQ1RJVkUiLCJwZXJtaXNzaW9ucyI6WyJDUkVBVEVfVVNFUiIsIlVQREFURV9VU0VSIiwiREVMRVRFX1VTRVIiLCJWSUVXX1VTRVIiLCJDUkVBVEVfUk9MRSIsIlVQREFURV9ST0xFIiwiREVMRVRFX1JPTEUiLCJDUkVBVEVfQ0FURUdPUlkiLCJVUERBVEVfQ0FURUdPUlkiLCJERUxFVEVfQ0FURUdPUlkiLCJDUkVBVEVfQ0FTRSIsIlVQREFURV9DQVNFIiwiREVMRVRFX0NBU0UiLCJVUERBVEVfQ0FTRV9TVEFUVVMiLCJBU1NJR05fQ0FURUdPUlkiLCJWSUVXX0RBU0hCT0FSRCIsIkNSRUFURV9IRUFMVEhfRkFDSUxJVFkiLCJVUERBVEVfSEVBTFRIX0ZBQ0lMSVRZIiwiREVMRVRFX0hFQUxUSF9GQUNJTElUWSJdLCJyb2xlIjoiU1VQRVJfQURNSU4iLCJpYXQiOjE3Mzk4NjU2NDEsImV4cCI6MTc0MDAzODQ0MX0.djNYtE0Y9TJQC1M5DU8h2cWWwbGdZ7JkAsqA1EPsZBU";
 };
+
+
+// const getToken = async () => {
+//   const token = await AsyncStorage.getItem('token')
+//   return token;
+// };
 
 const createApiClient = async (apiName) => {
   if (!apiConfigs[apiName]) {
@@ -88,21 +94,29 @@ const fetchDashboardStatusCase = async () => {
   }
 };
 
-const fetchQuestions = async () => {
+
+
+
+const fetchQuestions = async (categoryId) => {
   try {
+    if (!categoryId) return null;
     const apiClient = await createApiClient("addPatientCase");
-    const response = await apiClient.get(
-      "/categories/id/9e5497a3-342e-4751-845c-ac34967d4742"
-    );
-    return response.data.data; // Extract and return status case data
+    const response = await apiClient.get(`/categories/id/${categoryId}`);
+    return response.data.data; 
   } catch (error) {
     console.error(
-      "Error fetching dashboard status cases:",
+      "Error fetching category questions:",
       error.response?.data || error.message
     );
     throw error;
   }
 };
+
+
+
+
+
+
 
 const fetchHealthFacilities = async () => {
   try {
@@ -121,6 +135,7 @@ const fetchHealthFacilities = async () => {
 
 
 const addPatient = async (
+  categoryId,
   value,
   firstName,
   lastName,
@@ -134,7 +149,7 @@ const addPatient = async (
 
     // Prepare request payload
     const requestData = {
-      categoryId: "9e5497a3-342e-4751-845c-ac34967d4742",
+      categoryId:categoryId,
       casePersonalInfo: {
         firstName: firstName,
         lastName: lastName,
@@ -182,7 +197,7 @@ const fetchPatientCaseList = async () => {
   try {
     const apiClient = await createApiClient("patientCaseList");
     const response = await apiClient.get("/case/all?limit=10&page=1&includeHealthFacility=true&categoryId=9e5497a3-342e-4751-845c-ac34967d4742&includeStatuses=true&includeCasePersonalInfo=true");
-    console.log("Full API Response:", response.data);
+    //console.log("Full API Response:", response.data);
     return response.data.data; // Extract and return category data
   } catch (error) {
     console.error(
@@ -195,19 +210,19 @@ const fetchPatientCaseList = async () => {
 
 
 
-const fetchCaseById = async () => {
+const fetchCaseById = async (caseId) => {
   try {
     const apiClient = await createApiClient("caseById");
+    console.log(caseId)
     const response = await apiClient.get(
-      "/case/{caseId}"
+      `/case/${caseId}`
     );
-    return response.data.data; 
+    return response.data; 
   } catch (error) {
     console.error(
       "Error fetching case:",
       error.response?.data || error.message
     );
-    throw error;
   }
 };
 

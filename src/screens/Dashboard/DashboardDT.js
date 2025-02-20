@@ -77,13 +77,13 @@ const DashboardDT = () => {
           throw new Error("Invalid API response format");
         }
   
-        console.log("Cases Data:", responseData);
+        // console.log("Cases Data:", responseData);
   
         // Format data
        
   
         setCasesList(responseData);
-        console.log("Formatted Cases:", responseData);
+        //console.log("Formatted Cases:", responseData);
       } catch (error) {
         console.error("Error fetching patient cases:", error.toString());
       } finally {
@@ -260,7 +260,7 @@ const DashboardDT = () => {
 
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate("AddPatientCase");
+              navigation.navigate("");
             }}
           >
             <View style={styles.buttonWithIcon1}>

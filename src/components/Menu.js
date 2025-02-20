@@ -9,6 +9,7 @@ import React, { useState } from "react";
 import Colors from "../constants/Colors";
 import * as LucideIcons from "lucide-react-native";
 import { BlurView } from "expo-blur";
+import { useNavigation } from "@react-navigation/native";
 
 const IconLucide = ({ name, size = 24, color = "black" }) => {
   const LucideIcon = LucideIcons[name]; // Access the icon dynamically
@@ -21,8 +22,11 @@ const IconLucide = ({ name, size = 24, color = "black" }) => {
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("screen").height;
 
-const Menu = ({ Navigation }) => {
+const Menu = () => {
+  const navigation = useNavigation();
+  
   const [focusedField, setFocusedField] = useState(null);
+
 
   return (
     <View style={styles.container}>
@@ -32,7 +36,7 @@ const Menu = ({ Navigation }) => {
         experimentalBlurMethod="dynamicallyColoredBackdrop"
         style={styles.menuMainContainer}
       >
-        <TouchableOpacity onPress={() => setFocusedField("CircleUser")}>
+        <TouchableOpacity onPress={() => {setFocusedField("CircleUser");navigation.navigate("Profile")}}>
           <View style={styles.iconContainer}>
             <IconLucide
               name="CircleUser"

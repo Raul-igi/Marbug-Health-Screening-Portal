@@ -11,21 +11,25 @@ import Colors from "../../constants/Colors";
 import { useNavigation } from "@react-navigation/native";
 import { Dropdown } from "react-native-element-dropdown";
 import apiService from "../../apiService/apiService";
-
 const IconLucide = ({ name, size = 24, color = "black" }) => {
   const LucideIcon = LucideIcons[name];
   return LucideIcon ? <LucideIcon size={size} color={color} /> : null;
 };
-
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
-
-const SwitchCategory = () => {
+const SwitchCategory = ({onCategoryChange }) => {
   const navigation = useNavigation();
   const [focusedField, setFocusedField] = useState(null);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [value, setValue] = useState(null);
+
+
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [questions, setQuestions] = useState([]);
+
+
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,16 +41,42 @@ const SwitchCategory = () => {
           value: category.id,
         }));
         setCategories(formattedCategories);
+        onCategoryChange(formattedCategories[0].value)
+        setSelectedCategory(formattedCategories[0].value)
       } catch (error) {
         console.error("Error fetching categories:", error.message);
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
+
+
+
+  useEffect(() => {
+    const fetchCategoryQuestions = async () => {
+      if (!selectedCategory) return;
+      try {
+        console.log("Fetching questions for category ID:", selectedCategory);
+        const questionsData = await apiService.fetchQuestions(selectedCategory);
+        console.log("Fetched Questions:", questionsData);
+        setQuestions(questionsData || []);
+      } catch (error) {
+        console.error("Error fetching questions:", error);
+      }
+    };
+  
+    fetchCategoryQuestions();
+  }, []);
+  
+
+
+
+
+
+  
   return (
     <View style={styles.mainContainer}>
       <View style={styles.Container}>
@@ -63,13 +93,13 @@ const SwitchCategory = () => {
             selectedTextStyle={styles.selectedTextStyle}
             inputSearchStyle={styles.inputSearchStyle}
             data={categories}
+            value={selectedCategory}
             maxHeight={300}
             labelField="label"
             valueField="value"
             placeholder="Switch Categories"
             PlaceholderTextColor={Colors.solidWhite}
-            value={value}
-            onChange={(item) => setValue(item.value)}
+            onChange={(item) => onCategoryChange(item.value)}
             onFocus={() => setFocusedField("dropDown")}
             onBlur={() => setFocusedField(null)}
             renderRightIcon={() => (
@@ -85,7 +115,6 @@ const SwitchCategory = () => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   mainContainer: {
     flexDirection: "row",
@@ -122,5 +151,4 @@ const styles = StyleSheet.create({
     padding: 10,
   },
 });
-
 export default SwitchCategory;

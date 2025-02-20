@@ -6,6 +6,7 @@ import {
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import * as LucideIcons from "lucide-react-native";
 import Colors from "../constants/Colors";
+import { AuthContext } from "../context/context";
 
 const IconLucide = ({ name, size = 24, color = "black" }) => {
   const LucideIcon = LucideIcons[name];
@@ -15,34 +16,40 @@ const IconLucide = ({ name, size = 24, color = "black" }) => {
   return <LucideIcon size={size} color={color} />;
 };
 
-const CustomDrawerContent = (props) => (
-  <DrawerContentScrollView {...props}>
-    <View style={styles.drawerImageContainer}>
-      <Image
-        style={styles.drawerImage}
-        source={require("../constants/images/rwandaGov2.png")}
-        resizeMode="contain"
-      />
-      <Text style={styles.drawerTitle}>Marburg Health Screening Portal</Text>
-      <View style={styles.separator} />
-    </View>
-    <DrawerItemList {...props} />
-    <TouchableOpacity
-      onPress={() => console.log("User logged out")}
-      style={{
-        flexDirection: "row",
-        alignItems: "center",
-        padding: 10,
-        marginLeft: 10,
-      }}
-    >
-      <IconLucide name="LogOut" size={23} color="black" />
-      <Text style={{ marginLeft: 10, color: "black", fontSize: 16 }}>
-        Logout
-      </Text>
-    </TouchableOpacity>
-  </DrawerContentScrollView>
-);
+
+const CustomDrawerContent = (props) => {
+  const { signOut } = React.useContext(AuthContext); // Move useContext inside the component
+
+  return (
+    <DrawerContentScrollView {...props}>
+      <View style={styles.drawerImageContainer}>
+        <Image
+          style={styles.drawerImage}
+          source={require("../constants/images/rwandaGov2.png")}
+          resizeMode="contain"
+        />
+        <Text style={styles.drawerTitle}>Marburg Health Screening Portal</Text>
+        <View style={styles.separator} />
+      </View>
+      <DrawerItemList {...props} />
+      <TouchableOpacity
+        onPress={() => signOut()}
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          padding: 10,
+          marginLeft: 10,
+        }}
+      >
+        <IconLucide name="LogOut" size={23} color="black" />
+        <Text style={{ marginLeft: 10, color: "black", fontSize: 16 }}>
+          Logout
+        </Text>
+      </TouchableOpacity>
+    </DrawerContentScrollView>
+  );
+};
+
 
 const styles = StyleSheet.create({
   drawerImageContainer: {
