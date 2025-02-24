@@ -47,6 +47,9 @@ const AddPatientCase = ({ navigation, route }) => {
   const [selectedRadioAnswers, setSelectedRadioAnswers] = useState({});
   const [patientQuestions, setPatientQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedInputAnswers, setSelectedInputAnswers] = useState({});
+  const [selectedCheckboxAnswers, setSelectedCheckboxAnswers] = useState({});
+
 
   //manupulated data
   function addAnswerProperty(data) {
@@ -129,13 +132,12 @@ const AddPatientCase = ({ navigation, route }) => {
   };
 
   useEffect(() => {
-    console.log('myidididididid',route.params.id)
     setSelectedIndex(-1);
     setPatientQuestions([]);
     fetchPatientCaseAssessmentData();
     fetchhealthFacilitesData();
     const focusHandler = navigation.addListener("focus", () => {
-      console.log('myidididididid',route.params.id)
+      console.log("myidididididid", route.params.id);
       setSelectedIndex(-1);
       setPatientQuestions([]);
       fetchPatientCaseAssessmentData();
@@ -366,57 +368,189 @@ const AddPatientCase = ({ navigation, route }) => {
                       </Text>
                     </View>
 
+
+
+
+
+
+
+
                     {itemInfo.questions?.map((radioQ) => (
-                      <View key={radioQ.id}>
-                        <View style={styles.screenQuestion}>
-                          <Text style={styles.screenQuestionText}>
-                            {radioQ.name}
-                          </Text>
+                      <View key={radioQ.id} style={styles.questionContainer}>
+                      <View style={styles.checkboxContainer}>
+                        <Text>{radioQ.name}</Text>
+
                         </View>
 
-                        <View style={styles.radioContainer}>
-                          <RadioButton.Group
-                            onValueChange={(newValue) => {
-                              //console.log("Selected Radio Button:", newValue);
-                              setRadioValue(newValue);
+                        {radioQ.categoryQuestionType === "RADIO" && (
+                          <View style={styles.radioContainer}>
+                            <RadioButton.Group
+                              onValueChange={(newValue) => {
+                                setRadioValue(newValue);
 
-                              const updatedData = updateAnswer(
-                                patientQuestions,
-                                itemInfo.id, // categoryQuestionGroupId
-                                radioQ.id, // questionId
-                                newValue // answerValue
-                              );
+                                const updatedData = updateAnswer(
+                                  patientQuestions,
+                                  itemInfo.id, // categoryQuestionGroupId
+                                  radioQ.id, // questionId
+                                  newValue // answerValue
+                                );
 
-                              setSelectedRadioAnswers((prev) => ({
-                                ...prev,
-                                [radioQ.id]: {
-                                  categoryQuestionId: radioQ.id,
-                                  ...(radioQ.categoryQuestionType === "CHECKBOX" // Replace `condition` with your actual condition
-                                    ? { categoryQuestionOptionIds: [newValue] }
-                                    : {
-                                        categoryQuestionOptionId: newValue,
-                                      }),
-                                },
-                              }));
+                                setSelectedRadioAnswers((prev) => ({
+                                  ...prev,
+                                  [radioQ.id]: {
+                                    categoryQuestionId: radioQ.id,
+                                    ...(radioQ.categoryQuestionType ===
+                                    "RADIO"
+                                      ? {
+                                          categoryQuestionOptionIds: [newValue],
+                                        }
+                                      : { categoryQuestionOptionId: newValue }),
+                                  },
+                                }));
 
-                              // Update the state with the modified questions
-                              setPatientQuestions(updatedData);
-                            }}
-                            value={radioValue}
-                          >
-                            {radioQ.options.map((radioOPT) => (
-                              <View key={radioOPT.id}>
-                                <Text>{radioOPT.name}</Text>
-                                <RadioButton.Android
-                                  value={radioOPT.id}
-                                  color={Colors.lightBlue}
-                                />
-                              </View>
-                            ))}
-                          </RadioButton.Group>
-                        </View>
+                                setPatientQuestions(updatedData);
+                              }}
+                              value={radioValue}
+                            >
+                              {radioQ.options.map((radioOPT) => (
+                                <View
+                                  key={radioOPT.id}
+                                  style={styles.radioOption}
+                                >
+                                  <Text>{radioOPT.name}</Text>
+                                  <RadioButton.Android
+                                    value={radioOPT.id}
+                                    color={Colors.lightBlue}
+                                  />
+                                </View>
+                              ))}
+                            </RadioButton.Group>
+                          </View>
+                        )}
+
+
+
+
+
+
+                        {radioQ.categoryQuestionType === "NUMBER" && (
+                          <View style={styles.signinInputContainer}>
+                            <View>
+                              <TextInput
+                                style={[
+                                  styles.signinInputFilds,
+                                  focusedField === radioQ.id && {
+                                    borderColor: "#0790CF",
+                                  },
+                                ]}
+                                placeholder="Enter answer"
+                                placeholderTextColor={Colors.gray}
+                                value={selectedInputAnswers[radioQ.id] || ""}
+                                onChangeText={(text) => {
+                                  setSelectedInputAnswers((prev) => ({
+                                    ...prev,
+                                    [radioQ.id]: text,
+                                  }));
+
+                                  const updatedData = updateAnswer(
+                                    patientQuestions,
+                                    itemInfo.id, // categoryQuestionGroupId
+                                    radioQ.id, // questionId
+                                    text // answerValue
+                                  );
+
+                                  setPatientQuestions(updatedData);
+                                }}
+                                keyboardType={
+                                  radioQ.categoryQuestionType === "NUMBER"
+                                    ? "numeric"
+                                    : "default"
+                                }
+                                autoCapitalize="none"
+                                onFocus={() => setFocusedField(radioQ.id)}
+                                onBlur={() => setFocusedField(null)}
+                              />
+                            </View>
+                          </View>
+                        )}
+
+
+
+
+
+
+
+
+
+                        
+  {itemInfo.questions?.map((question) => (
+  <View key={question.id} style={styles.questionContainer}>
+   
+    {question.categoryQuestionType === "CHECKBOX" && (
+      <View style={styles.checkboxContainer}>
+        
+        {question.options.map((option) => {
+          // Get current selected IDs for this question
+          const currentSelections = selectedCheckboxAnswers[question.id] || [];
+          const isChecked = currentSelections.includes(option.id);
+
+          return (
+            <View key={option.id} style={styles.checkboxOption}>
+              <Checkbox.Android
+                status={isChecked ? "checked" : "unchecked"}
+                onPress={() => {
+                  setSelectedCheckboxAnswers((prev) => {
+                    const updatedSelections = isChecked
+                      ? prev[question.id]?.filter((id) => id !== option.id) || []
+                      : [...(prev[question.id] || []), option.id];
+
+                    
+                    console.log(`Updated selections for question ${question.id}:`, updatedSelections);
+
+                    // Update patientQuestions state
+                    const updatedData = updateAnswer(
+                      patientQuestions,
+                      itemInfo.id, // categoryQuestionGroupId
+                      question.id, // questionId
+                      updatedSelections //  Submit all selected IDs
+                    );
+
+                    setPatientQuestions(updatedData);
+
+                    return { ...prev, [question.id]: updatedSelections };
+                  });
+                }}
+                color={Colors.lightBlue}
+              />
+              <Text>{option.name}</Text>
+            </View>
+          );
+        })}
+      </View>
+    )}
+  </View>
+))}
+
+
+
+
+
+
                       </View>
                     ))}
+
+
+
+
+
+
+
+
+
+
+
+
+
                   </View>
 
                   <View style={styles.buttonConatainer}>
@@ -879,7 +1013,7 @@ const styles = StyleSheet.create({
   checkboxContainer: {
     justifyContent: "flex-start",
     alignItems: "flex-start",
-    marginHorizontal: 10,
+    marginHorizontal: 20,
     marginTop: 10,
   },
 
@@ -919,6 +1053,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     fontWeight: "400",
   },
+  
 });
 
 export default AddPatientCase;

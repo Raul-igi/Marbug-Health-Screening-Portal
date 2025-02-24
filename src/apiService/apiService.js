@@ -8,13 +8,11 @@ const apiConfigs = {
   healthFacilities: "https://test.ohereza.rw/api-hs",
   patientCaseList: "https://test.ohereza.rw/api-hs",
   caseById: "https://test.ohereza.rw/api-hs",
-
 };
 
 const getToken = async () => {
-  return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUzZTlmNjBlLWMzNTQtNDg1YS1iOTcwLTVmZWIwYTg2YzdkMCIsImVtYWlsIjoiamF6enlicnVubzQ1QGdtYWlsLmNvbSIsInVzZXJOYW1lIjoiSmF6enkiLCJzdGF0dXMiOiJBQ1RJVkUiLCJwZXJtaXNzaW9ucyI6WyJDUkVBVEVfVVNFUiIsIlVQREFURV9VU0VSIiwiREVMRVRFX1VTRVIiLCJWSUVXX1VTRVIiLCJDUkVBVEVfUk9MRSIsIlVQREFURV9ST0xFIiwiREVMRVRFX1JPTEUiLCJDUkVBVEVfQ0FURUdPUlkiLCJVUERBVEVfQ0FURUdPUlkiLCJERUxFVEVfQ0FURUdPUlkiLCJDUkVBVEVfQ0FTRSIsIlVQREFURV9DQVNFIiwiREVMRVRFX0NBU0UiLCJVUERBVEVfQ0FTRV9TVEFUVVMiLCJBU1NJR05fQ0FURUdPUlkiLCJWSUVXX0RBU0hCT0FSRCIsIkNSRUFURV9IRUFMVEhfRkFDSUxJVFkiLCJVUERBVEVfSEVBTFRIX0ZBQ0lMSVRZIiwiREVMRVRFX0hFQUxUSF9GQUNJTElUWSJdLCJyb2xlIjoiU1VQRVJfQURNSU4iLCJpYXQiOjE3NDAwMzQ3NjMsImV4cCI6MTc0MDIwNzU2M30.K2Q0cQXEkbKCo6-IiBJ1sm3XNociVaOlzd2pTlJe5mo";
+  return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUzZTlmNjBlLWMzNTQtNDg1YS1iOTcwLTVmZWIwYTg2YzdkMCIsImVtYWlsIjoiamF6enlicnVubzQ1QGdtYWlsLmNvbSIsInVzZXJOYW1lIjoiSmF6enkiLCJzdGF0dXMiOiJBQ1RJVkUiLCJwZXJtaXNzaW9ucyI6WyJDUkVBVEVfVVNFUiIsIlVQREFURV9VU0VSIiwiREVMRVRFX1VTRVIiLCJWSUVXX1VTRVIiLCJDUkVBVEVfUk9MRSIsIlVQREFURV9ST0xFIiwiREVMRVRFX1JPTEUiLCJDUkVBVEVfQ0FURUdPUlkiLCJVUERBVEVfQ0FURUdPUlkiLCJERUxFVEVfQ0FURUdPUlkiLCJDUkVBVEVfQ0FTRSIsIlVQREFURV9DQVNFIiwiREVMRVRFX0NBU0UiLCJVUERBVEVfQ0FTRV9TVEFUVVMiLCJBU1NJR05fQ0FURUdPUlkiLCJWSUVXX0RBU0hCT0FSRCIsIkNSRUFURV9IRUFMVEhfRkFDSUxJVFkiLCJVUERBVEVfSEVBTFRIX0ZBQ0lMSVRZIiwiREVMRVRFX0hFQUxUSF9GQUNJTElUWSJdLCJyb2xlIjoiU1VQRVJfQURNSU4iLCJpYXQiOjE3NDAzNzkwMDUsImV4cCI6MTc0MDU1MTgwNX0.4JP5PdU1tIWAK5-CIFDrw26nG1g8uj_nnilDa_x7_-c";
 };
-
 
 // const getToken = async () => {
 //   const token = await AsyncStorage.getItem('token')
@@ -80,11 +78,14 @@ const fetchCategories = async () => {
   }
 };
 
-const fetchDashboardStatusCase = async () => {
+const fetchDashboardStatusCase = async (categoryId) => {
   try {
     const apiClient = await createApiClient("dashboardStatusCase");
-    const response = await apiClient.get("/dashboard/status-cases-statistics");
-    return response.data.data; // Extract and return status case data
+
+    const response = await apiClient.get(`/dashboard/status-cases-statistics`, {
+      params: { categoryId },
+    });
+    return response.data.data;
   } catch (error) {
     console.error(
       "Error fetching dashboard status cases:",
@@ -95,14 +96,12 @@ const fetchDashboardStatusCase = async () => {
 };
 
 
-
-
 const fetchQuestions = async (categoryId) => {
   try {
     if (!categoryId) return null;
     const apiClient = await createApiClient("addPatientCase");
     const response = await apiClient.get(`/categories/id/${categoryId}`);
-    return response.data.data; 
+    return response.data.data;
   } catch (error) {
     console.error(
       "Error fetching category questions:",
@@ -111,12 +110,6 @@ const fetchQuestions = async (categoryId) => {
     throw error;
   }
 };
-
-
-
-
-
-
 
 const fetchHealthFacilities = async () => {
   try {
@@ -131,8 +124,6 @@ const fetchHealthFacilities = async () => {
     throw error;
   }
 };
-
-
 
 const addPatient = async (
   categoryId,
@@ -149,7 +140,7 @@ const addPatient = async (
 
     // Prepare request payload
     const requestData = {
-      categoryId:categoryId,
+      categoryId: categoryId,
       casePersonalInfo: {
         firstName: firstName,
         lastName: lastName,
@@ -190,13 +181,12 @@ const addPatient = async (
   }
 };
 
-
-
-
 const fetchPatientCaseList = async () => {
   try {
     const apiClient = await createApiClient("patientCaseList");
-    const response = await apiClient.get("/case/all?limit=10&page=1&includeHealthFacility=true&categoryId=9e5497a3-342e-4751-845c-ac34967d4742&includeStatuses=true&includeCasePersonalInfo=true");
+    const response = await apiClient.get(
+      "/case/all?limit=10&page=1&includeHealthFacility=true&categoryId=9e5497a3-342e-4751-845c-ac34967d4742&includeStatuses=true&includeCasePersonalInfo=true"
+    );
     //console.log("Full API Response:", response.data);
     return response.data.data; // Extract and return category data
   } catch (error) {
@@ -208,16 +198,12 @@ const fetchPatientCaseList = async () => {
   }
 };
 
-
-
 const fetchCaseById = async (caseId) => {
   try {
     const apiClient = await createApiClient("caseById");
-    console.log(caseId)
-    const response = await apiClient.get(
-      `/case/${caseId}`
-    );
-    return response.data; 
+    console.log(caseId);
+    const response = await apiClient.get(`/case/${caseId}`);
+    return response.data;
   } catch (error) {
     console.error(
       "Error fetching case:",
@@ -225,11 +211,6 @@ const fetchCaseById = async (caseId) => {
     );
   }
 };
-
-
-
-
-
 
 const apiService = {
   get: (apiName, endpoint, params) =>
@@ -244,7 +225,7 @@ const apiService = {
   fetchHealthFacilities,
   addPatient,
   fetchPatientCaseList,
-  fetchCaseById
+  fetchCaseById,
 };
 
 export default apiService;

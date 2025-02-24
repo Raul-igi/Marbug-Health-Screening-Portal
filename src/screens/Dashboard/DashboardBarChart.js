@@ -6,41 +6,9 @@ import Colors from "../../constants/Colors";
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
-const DashboardDonutChart = () => {
+const DashboardDonutChart = ({data}) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
 
-  const data = [
-    {
-      value: 56.21,
-      color: "#f39c12",
-      label: "Test for Other Diseases",
-      description: "Diseases (Malaria, Typhoid, Gastroenteritis) 56.21%",
-    },
-    {
-      value: 19.14,
-      color: "#e74c3c",
-      label: "Isolate and Investigate",
-      description: "Isolate and Investigate 19.14%",
-    },
-    {
-      value: 21.94,
-      color: "#1abc9c",
-      label: "No Threat",
-      description: "No Threat 21.94%",
-    },
-    {
-      value: 5.4,
-      color: "#00FFFF",
-      label: "No Test Needed",
-      description: "No Test Needed 2.4%",
-    },
-    {
-      value: 3.3,
-      color: "#8e44ad",
-      label: "Linked to Testing",
-      description: "Linked to Testing 0.3%",
-    },
-  ];
 
   return (
     <View style={styles.container}>
@@ -65,7 +33,7 @@ const DashboardDonutChart = () => {
       />
         
       {selectedIndex !== null && ( 
-        <Text style={[styles.descriptionText, {color:data[selectedIndex].color}]}>   
+        <Text style={[styles.descriptionText, {color:"red"}]}>   
           {data[selectedIndex].description}  
         </Text>
       )}
@@ -104,7 +72,7 @@ const styles = StyleSheet.create({
   descriptionText: {
     marginTop: 20,
     fontSize: 16,
-    color: "#333",
+    color: "red",
     textAlign: "center",
   },
   legendContainer: {

@@ -8,7 +8,8 @@ import {
 import React from "react";
 import * as LucideIcons from "lucide-react-native";
 import Colors from "../constants/Colors";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { AuthContext } from "../context/context";
 
 const IconLucide = ({ name, size = 24, color = "black" }) => {
   const LucideIcon = LucideIcons[name]; // Access the icon dynamically
@@ -21,18 +22,31 @@ const IconLucide = ({ name, size = 24, color = "black" }) => {
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
-const  Headers = () => {
+
+const Headers = () => {
+  const { signOut } = React.useContext(AuthContext);
+
   const navigation = useNavigation();
+  const route = useRoute();
+
+
   return (
     <View style={styles.mainContainer}>
-
-      <View>
-        <View style={styles.menuHamburger}>
-          <TouchableOpacity onPress={() => navigation.openDrawer()}>
-            <IconLucide name="AlignJustify" size={23} color={Colors.solidWhite} />
-          </TouchableOpacity>
+      {route.name !== "Dashboard" ? (
+        <View>
+          <View style={styles.menuHamburger}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <IconLucide
+                name="ChevronLeft"
+                size={23}
+                color={Colors.solidWhite}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      ) : (
+        <View style={styles.menuHamburgerPlaceholder} />
+      )}
 
       <View style={styles.notificatioinProfileMainContainer}>
         <TouchableOpacity>
@@ -41,13 +55,35 @@ const  Headers = () => {
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+        {route.name == "Profile" ? (
+
+
+          <TouchableOpacity onPress={() => signOut()}>
+          <View style={styles.logoutContainer}>
+            <Text style={styles.logoutText}>Logout</Text>
+          </View>
+        </TouchableOpacity>
+
+      ) : (
+
+        <TouchableOpacity onPress={() =>navigation.navigate("Profile")}>
           <View style={styles.profileContainer}>
             <Text style={styles.profileText}>IG</Text>
           </View>
         </TouchableOpacity>
-      </View>
 
+
+      )}
+
+
+        
+
+
+
+
+
+
+      </View>
     </View>
   );
 };
@@ -57,14 +93,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    alignSelf:"center",
-    padding:20,
-    paddingTop:60,
+    alignSelf: "center",
+    padding: 20,
+    paddingTop: 60,
     //marginTop: 20,
     width: windowWidth,
     height: 90,
-    backgroundColor:Colors.lightBlue,
-   
+    backgroundColor: Colors.lightBlue,
   },
 
   notificationContainer: {
@@ -72,7 +107,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 50,
     borderWidth: 1,
-    borderColor: Colors.lightGray,
+    borderColor: Colors.solidWhite,
     width: 28,
     height: 28,
   },
@@ -86,12 +121,31 @@ const styles = StyleSheet.create({
     borderColor: Colors.solidWhite,
     width: 28,
     height: 28,
+    
   },
 
   profileText: {
-    fontSize: 17,
+    fontSize: windowHeight / 55,
     color: Colors.solidWhite,
   },
+
+  logoutContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.lightBlue,
+    borderRadius: 50,
+    borderWidth: 1,
+    borderColor: Colors.solidWhite,
+    width: 60,
+    height: 28,
+    
+  },
+
+  logoutText: {
+    fontSize: windowHeight / 55,
+    color: Colors.solidWhite,
+  },
+  
 
   menuHamburger: {
     justifyContent: "center",
@@ -100,11 +154,11 @@ const styles = StyleSheet.create({
     width: 30,
   },
 
-  notificatioinProfileMainContainer:{
-    flexDirection:"row",
-    justifyContent:"center",
-    gap:10
-  }
+  notificatioinProfileMainContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 10,
+  },
 });
 
 export default Headers;

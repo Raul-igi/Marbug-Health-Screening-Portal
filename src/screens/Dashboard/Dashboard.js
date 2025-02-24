@@ -27,6 +27,8 @@ import DashboardDT from "./DashboardDT";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import apiService from "../../apiService/apiService";
 import SwitchCategory from "../../components/SwitchCategory/SwitchCategory";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 import * as LucideIcons from "lucide-react-native";
 
@@ -41,60 +43,73 @@ const IconLucide = ({ name, size = 24, color = "black" }) => {
 const windowWidth = Dimensions.get("screen").width;
 const windowHeight = Dimensions.get("screen").height;
 
-const data = [
-  { label: "Test CS", value: "1" },
-  { label: "Butare Teaching University (CHUB)", value: "2" },
-  { label: "Gakoma DH", value: "3" },
-  { label: "Gitwe DH", value: "4" },
-  {
-    label: "Huye Isange Rehabilitation Center",
-    value: "5",
-  },
-  { label: "HVP Gatagara specialised Hospital", value: "6" },
-  { label: "Kabgayi TH", value: "7" },
-  { label: "Nyabikenke DH", value: "8" },
-  { label: "Kabutare DH", value: "9" },
-  { label: "Kaduha DH", value: "10" },
-  { label: "Kibilizi DH", value: "10" },
-  { label: "Kigeme DH", value: "10" },
-];
+
 
 const Dashboard = ({navigation}) => {
   const [focusedField, setFocusedField] = useState(null);
   const [searchText, setSearchText] = useState("");
-  const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [value, setValue] = useState(null);
-
+  
   const [startDate, setStartDate] = useState(new Date());
   const [showStartDate, setShowStartDate] = useState(false);
-
+  
   const [endDate, setEndDate] = useState(new Date());
   const [showEndDate, setShowEndDate] = useState(false);
-
+  
+  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [statusCase, setStatusCase] = useState([]);
+
+  const [user, setUser] = useState(null);
+  const [dashboardData, setDashboardData] = useState([]);
+
+
+  
 
   const handleCategoryChange = (newCategoryId) => {
     setSelectedCategoryId(newCategoryId);
   };
 
+
+
   useEffect(() => {
     const fetchData = async () => {
+      if (!selectedCategoryId) return; // Don't fetch if no category is selected
       try {
         setLoading(true);
-        const data = await apiService.fetchDashboardStatusCase();
-        //console.log("Fetched status cases:", data);
-
+        const data = await apiService.fetchDashboardStatusCase(selectedCategoryId);  // Pass categoryId here
         setStatusCase(data);
+        const dashboardData_ = data.map(d=>({label: d.name, color:d.color, value:d.count }))
+        setDashboardData(dashboardData_)
       } catch (error) {
         console.error("Error fetching data:", error.message);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchData();
+  }, [selectedCategoryId]); // Re-run whenever selectedCategoryId changes
+
+
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const storedUser = await AsyncStorage.getItem("user");
+        if (storedUser) {
+          setUser(JSON.parse(storedUser)); // Parse and store user data
+        }
+      } catch (error) {
+        console.log("Error retrieving user data:", error);
+      }
+    };
+
+    fetchUserData();
   }, []);
+  
+
+
 
   const startOnChange = (event, selectedDate) => {
     setShowStartDate(false);
@@ -147,7 +162,7 @@ const Dashboard = ({navigation}) => {
               <View style={styles.userNameWelcomeContainer}>
                 <Text style={styles.userNameWelcomeText1}>Welcome back</Text>
 
-                <Text style={styles.userNameWelcomeText2}>Raul Gisa</Text>
+                <Text style={styles.userNameWelcomeText2}>{user?.userName}</Text>
               </View>
             </View>
           </View>
@@ -271,11 +286,11 @@ const Dashboard = ({navigation}) => {
                   )}
                 </View>
 
-                <DashboardDonutChart />
-                <DashboardBarChart />
-                <DashboardLineChart />
+                <DashboardDonutChart data={dashboardData} />
+                <DashboardBarChart  data={dashboardData} />
+                {/* <DashboardLineChart />
                 <DashboardDonutChartTwo />
-                <DashboardDonutChartThree />
+                <DashboardDonutChartThree /> */}
                 <DashboardDT />
               </View>
             </ScrollView>

@@ -57,7 +57,7 @@ const Menu = () => {
               color={focusedField === "PatientInformation" ? "#0790CF" : "black"}
             />
             <Text style={{ color: focusedField === "PatientInformation" ? "#0790CF" : "black" }}>
-              Patient Info
+              Patient Inforfmation
             </Text>
           </View>
         </TouchableOpacity>
@@ -75,7 +75,7 @@ const Menu = () => {
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+        {/* <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
           <View style={styles.iconContainer}>
             <IconLucide
               name="CircleUser"
@@ -86,7 +86,7 @@ const Menu = () => {
               Profile
             </Text>
           </View>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </BlurView>
     </View>
   );
