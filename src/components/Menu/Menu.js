@@ -35,6 +35,9 @@ const Menu = () => {
 
   return (
     <View style={styles.container}>
+
+    
+
       <BlurView intensity={70} tint="light" style={styles.menuMainContainer}>
         <TouchableOpacity onPress={() => navigation.navigate("Dashboard")}>
           <View style={styles.iconContainer}>
@@ -88,6 +91,7 @@ const Menu = () => {
           </View>
         </TouchableOpacity> */}
       </BlurView>
+
     </View>
   );
 };
@@ -113,6 +117,8 @@ const styles = StyleSheet.create({
     borderColor: Colors.lightBlue,
     gap: 20,
     overflow: "hidden",
+    backgroundColor:"#edede9"
+    
   },
 
   iconContainer: {

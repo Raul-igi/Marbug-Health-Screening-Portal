@@ -155,9 +155,9 @@ const Dashboard = ({navigation}) => {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <>
           <View style={styles.maincontainer}>
-            <Headers />
+            <Headers onCategoryChange={handleCategoryChange} />
 
-            <SwitchCategory onCategoryChange={handleCategoryChange} />
+            {/* <SwitchCategory /> */}
             <View style={styles.contentContainer}>
               <View style={styles.userNameWelcomeContainer}>
                 <Text style={styles.userNameWelcomeText1}>Welcome back</Text>
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   },
 
   cardFirstRowText: {
-    fontSize: windowHeight / 50,
+    fontSize: windowHeight / 55,
     fontWeight: 200,
     color: Colors.dark,
   },

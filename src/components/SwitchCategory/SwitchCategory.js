@@ -18,6 +18,7 @@ const IconLucide = ({ name, size = 24, color = "black" }) => {
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 const SwitchCategory = ({onCategoryChange }) => {
+
   const navigation = useNavigation();
   const [focusedField, setFocusedField] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -59,9 +60,9 @@ const SwitchCategory = ({onCategoryChange }) => {
     const fetchCategoryQuestions = async () => {
       if (!selectedCategory) return;
       try {
-        console.log("Fetching questions for category ID:", selectedCategory);
+        //console.log("Fetching questions for category ID:", selectedCategory);
         const questionsData = await apiService.fetchQuestions(selectedCategory);
-        console.log("Fetched Questions:", questionsData);
+        //console.log("Fetched Questions:", questionsData);
         setQuestions(questionsData || []);
       } catch (error) {
         console.error("Error fetching questions:", error);
@@ -78,7 +79,7 @@ const SwitchCategory = ({onCategoryChange }) => {
 
   
   return (
-    <View style={styles.mainContainer}>
+    <View style={styles.CategoryMainContainer}>
       <View style={styles.Container}>
         {loading ? (
           <ActivityIndicator size="large" color={Colors.solidWhite} />
@@ -89,8 +90,7 @@ const SwitchCategory = ({onCategoryChange }) => {
               styles.filterdropdown,
               focusedField === "dropDown" && { borderColor: "#0790CF" },
             ]}
-            placeholderStyle={styles.dropDownPlaceHolderStyle}
-            selectedTextStyle={styles.selectedTextStyle}
+            selectedTextStyle={styles.selectedTextStyles}
             inputSearchStyle={styles.inputSearchStyle}
             data={categories}
             value={selectedCategory}
@@ -116,22 +116,23 @@ const SwitchCategory = ({onCategoryChange }) => {
   );
 };
 const styles = StyleSheet.create({
-  mainContainer: {
+  CategoryMainContainer: {
     flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    alignSelf: "center",
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
     paddingBottom: 10,
     width: windowWidth,
-    backgroundColor: Colors.lightBlue,
+    backgroundColor: "red",
   },
   Container: {
     flexDirection: "row",
     justifyContent: "center",
     gap: 10,
+    marginHorizontal:20,
+
   },
   filterdropdown: {
-    width: windowWidth * 0.45,
+    width: windowWidth * 0.60,
     height: windowHeight * 0.05,
     borderRadius: 12,
     padding: 10,
@@ -141,14 +142,22 @@ const styles = StyleSheet.create({
     borderColor: Colors.solidWhite,
     backgroundColor: Colors.lightBlue,
   },
-  dropDownPlaceHolderStyle: {
-    fontSize: windowHeight / 60,
-    color: Colors.solidWhite,
-  },
+ 
   dropdownContainer: {
     borderRadius: 10,
     backgroundColor: Colors.pageBackgroundColor,
-    padding: 10,
+   
   },
+
+  selectedTextStyles:{
+    color:Colors.solidWhite,
+    fontSize:windowHeight /60,
+    textAlign: "center", 
+    alignSelf: "center", 
+    width: "100%", 
+  
+
+
+  }
 });
 export default SwitchCategory;

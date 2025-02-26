@@ -87,11 +87,7 @@ const OfflineData = () => {
       <View style={styles.maincontainer}>
         <View>
           <Headers />
-          <View style={styles.menuHamburger}>
-            <TouchableOpacity onPress={() => navigation.openDrawer()}>
-              <IconLucide name="AlignJustify" size={23} color={"black"} />
-            </TouchableOpacity>
-          </View>
+          
         </View>
 
         <View style={styles.contentContainer}>

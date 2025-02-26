@@ -8,10 +8,12 @@ const apiConfigs = {
   healthFacilities: "https://test.ohereza.rw/api-hs",
   patientCaseList: "https://test.ohereza.rw/api-hs",
   caseById: "https://test.ohereza.rw/api-hs",
+  recentCases:"https://test.ohereza.rw/api-hs",
+  caseStatus:"https://test.ohereza.rw/api-hs",
 };
 
 const getToken = async () => {
-  return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUzZTlmNjBlLWMzNTQtNDg1YS1iOTcwLTVmZWIwYTg2YzdkMCIsImVtYWlsIjoiamF6enlicnVubzQ1QGdtYWlsLmNvbSIsInVzZXJOYW1lIjoiSmF6enkiLCJzdGF0dXMiOiJBQ1RJVkUiLCJwZXJtaXNzaW9ucyI6WyJDUkVBVEVfVVNFUiIsIlVQREFURV9VU0VSIiwiREVMRVRFX1VTRVIiLCJWSUVXX1VTRVIiLCJDUkVBVEVfUk9MRSIsIlVQREFURV9ST0xFIiwiREVMRVRFX1JPTEUiLCJDUkVBVEVfQ0FURUdPUlkiLCJVUERBVEVfQ0FURUdPUlkiLCJERUxFVEVfQ0FURUdPUlkiLCJDUkVBVEVfQ0FTRSIsIlVQREFURV9DQVNFIiwiREVMRVRFX0NBU0UiLCJVUERBVEVfQ0FTRV9TVEFUVVMiLCJBU1NJR05fQ0FURUdPUlkiLCJWSUVXX0RBU0hCT0FSRCIsIkNSRUFURV9IRUFMVEhfRkFDSUxJVFkiLCJVUERBVEVfSEVBTFRIX0ZBQ0lMSVRZIiwiREVMRVRFX0hFQUxUSF9GQUNJTElUWSJdLCJyb2xlIjoiU1VQRVJfQURNSU4iLCJpYXQiOjE3NDAzNzkwMDUsImV4cCI6MTc0MDU1MTgwNX0.4JP5PdU1tIWAK5-CIFDrw26nG1g8uj_nnilDa_x7_-c";
+  return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUzZTlmNjBlLWMzNTQtNDg1YS1iOTcwLTVmZWIwYTg2YzdkMCIsImVtYWlsIjoiamF6enlicnVubzQ1QGdtYWlsLmNvbSIsInVzZXJOYW1lIjoiSmF6enkiLCJzdGF0dXMiOiJBQ1RJVkUiLCJwZXJtaXNzaW9ucyI6WyJDUkVBVEVfVVNFUiIsIlVQREFURV9VU0VSIiwiREVMRVRFX1VTRVIiLCJWSUVXX1VTRVIiLCJDUkVBVEVfUk9MRSIsIlVQREFURV9ST0xFIiwiREVMRVRFX1JPTEUiLCJDUkVBVEVfQ0FURUdPUlkiLCJVUERBVEVfQ0FURUdPUlkiLCJERUxFVEVfQ0FURUdPUlkiLCJDUkVBVEVfQ0FTRSIsIlVQREFURV9DQVNFIiwiREVMRVRFX0NBU0UiLCJVUERBVEVfQ0FTRV9TVEFUVVMiLCJBU1NJR05fQ0FURUdPUlkiLCJWSUVXX0RBU0hCT0FSRCIsIkNSRUFURV9IRUFMVEhfRkFDSUxJVFkiLCJVUERBVEVfSEVBTFRIX0ZBQ0lMSVRZIiwiREVMRVRFX0hFQUxUSF9GQUNJTElUWSJdLCJyb2xlIjoiU1VQRVJfQURNSU4iLCJpYXQiOjE3NDA1NTU3NDEsImV4cCI6MTc0MDcyODU0MX0.3EWND_dhZPNtgRBZ2nWE-IWDaDhmxl0TurwEZnAuyjc";
 };
 
 // const getToken = async () => {
@@ -181,6 +183,97 @@ const addPatient = async (
   }
 };
 
+
+
+
+
+const dertermineStatus = async (
+  categoryId,
+  value,
+  firstName,
+  lastName,
+  phoneNumber,
+  selectedRadioAnswers
+) => {
+  try {
+    // Create API client with proper authentication
+    const apiClient = await createApiClient("caseStatus");
+    const answersArray = Object.values(selectedRadioAnswers);
+
+    // Prepare request payload
+    const requestData = {
+      categoryId: categoryId,
+      casePersonalInfo: {
+        firstName: firstName,
+        lastName: lastName,
+        phone: phoneNumber,
+      },
+      screenerPersonalInfo: {
+        firstName: firstName,
+        lastName: lastName,
+        phone: phoneNumber,
+      },
+
+      healthCenterId: value.value,
+      answers: answersArray,
+      // notifications: {
+      //   statusId: "string",
+      //   params: [
+      //     {
+      //       name: "recipientName",
+      //       value: "John Doe",
+      //     },
+      //     {
+      //       name: "facility",
+      //       value: "Kigali",
+      //     },
+      //   ],
+      // },
+    };
+    // Send POST request to the backend
+    const response = await apiClient.post("/case/determine-status", requestData);
+
+    return response.data; // Return response from API
+  } catch (error) {
+    console.error(
+      "Error dertermine case staus:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+
+
+
+
+
+
+
+
+
+const fetchRecentCases = async () => {
+  try {
+    const apiClient = await createApiClient("recentCases");
+    const response = await apiClient.get(
+      "/case/all?limit=5&page=1&includeHealthFacility=true&categoryId=9e5497a3-342e-4751-845c-ac34967d4742&includeStatuses=true&includeCasePersonalInfo=true"
+    );
+    //console.log("Full API Response:", response.data);
+    return response.data.data; // Extract and return category data
+  } catch (error) {
+    console.error(
+      "Error fetching recent cases:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+
+
+
+
+
 const fetchPatientCaseList = async () => {
   try {
     const apiClient = await createApiClient("patientCaseList");
@@ -191,17 +284,26 @@ const fetchPatientCaseList = async () => {
     return response.data.data; // Extract and return category data
   } catch (error) {
     console.error(
-      "Error fetching Health Facilities:",
+      "Error fetching cases:",
       error.response?.data || error.message
     );
     throw error;
   }
 };
 
+
+
+
+
+
+
+
+
+
 const fetchCaseById = async (caseId) => {
   try {
     const apiClient = await createApiClient("caseById");
-    console.log(caseId);
+    //console.log(caseId);
     const response = await apiClient.get(`/case/${caseId}`);
     return response.data;
   } catch (error) {
@@ -225,7 +327,9 @@ const apiService = {
   fetchHealthFacilities,
   addPatient,
   fetchPatientCaseList,
+  fetchRecentCases,
   fetchCaseById,
+  dertermineStatus 
 };
 
 export default apiService;

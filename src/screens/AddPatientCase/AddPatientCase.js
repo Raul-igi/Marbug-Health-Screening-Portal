@@ -50,6 +50,8 @@ const AddPatientCase = ({ navigation, route }) => {
   const [selectedInputAnswers, setSelectedInputAnswers] = useState({});
   const [selectedCheckboxAnswers, setSelectedCheckboxAnswers] = useState({});
 
+  const [statusColor, setStatusColor] =useState();
+  const [statusName,setStatusName] =useState();
 
   //manupulated data
   function addAnswerProperty(data) {
@@ -105,7 +107,7 @@ const AddPatientCase = ({ navigation, route }) => {
     try {
       const data = await apiService.fetchQuestions(route.params.id);
       const cleanedData = addAnswerProperty(data);
-      console.log("lskjf", cleanedData.categoryQuestionGroups.length);
+      //console.log("lskjf", cleanedData.categoryQuestionGroups.length);
       setPatientQuestions(cleanedData);
     } catch (error) {
       console.error("Error fetching category:", error);
@@ -137,7 +139,7 @@ const AddPatientCase = ({ navigation, route }) => {
     fetchPatientCaseAssessmentData();
     fetchhealthFacilitesData();
     const focusHandler = navigation.addListener("focus", () => {
-      console.log("myidididididid", route.params.id);
+      //console.log("myidididididid", route.params.id);
       setSelectedIndex(-1);
       setPatientQuestions([]);
       fetchPatientCaseAssessmentData();
@@ -145,6 +147,8 @@ const AddPatientCase = ({ navigation, route }) => {
     });
     return focusHandler;
   }, [navigation]);
+
+
 
   const handleAddPatient = async () => {
     try {
@@ -181,6 +185,61 @@ const AddPatientCase = ({ navigation, route }) => {
       alert("Failed to add patient. Please try again.");
     }
   };
+
+
+
+
+  const handleDertermineStatus = async () => {
+    try {
+      if (!firstName || !lastName || !phoneNumber || !value) {
+        alert("Please fill all fields before submitting.");
+        return;
+      }
+
+      // console.log("First Name:", firstName);
+      // console.log("Last Name:", lastName);
+      // console.log("Phone Number:", phoneNumber);
+      // console.log("Selected Value:", value);
+      // console.log("Selected Radio Answers:", selectedRadioAnswers);
+
+      
+
+      const response = await apiService.dertermineStatus(
+        route.params.id,
+        value,
+        firstName,
+        lastName,
+        phoneNumber,
+        selectedRadioAnswers
+      );
+
+      console.log("determine status response:", response);
+
+      if (response.success === true){
+        setStatusColor(response.data.color)
+        setStatusName(response.data.name)
+        setSelectedIndex(patientQuestions.categoryQuestionGroups?.length)
+
+      }
+
+
+      // Navigate to the next screen or reset the form
+      setFirstName("");
+      setLastName("");
+      setphoneNumber("");
+      setValue(null);
+    } catch (error) {
+      console.error("Failed to add patient:", error.message);
+      alert("Failed to add patient. Please try again.");
+    }
+  };
+
+
+
+
+
+
+
 
   const renderItem = (item) => {
     const isSelected = item.value === value;
@@ -235,7 +294,7 @@ const AddPatientCase = ({ navigation, route }) => {
                   <Dropdown
                     containerStyle={{
                       borderRadius: 10,
-                      backgroundColor: Colors.pageBackgroundColor,
+                      backgroundColor: Colors.solidWhite,
                       padding: 10,
                     }}
                     style={[
@@ -338,7 +397,9 @@ const AddPatientCase = ({ navigation, route }) => {
 
                 <View style={styles.buttonConatainer}>
                   <TouchableOpacity
-                    onPress={() => setSelectedIndex(selectedIndex + 1)}
+                    onPress={() => {
+                        setSelectedIndex(selectedIndex+1)
+                      }}
                   >
                     <View style={styles.NextButton}>
                       <Text style={styles.NextButtonText}>Next</Text>
@@ -368,18 +429,10 @@ const AddPatientCase = ({ navigation, route }) => {
                       </Text>
                     </View>
 
-
-
-
-
-
-
-
                     {itemInfo.questions?.map((radioQ) => (
                       <View key={radioQ.id} style={styles.questionContainer}>
-                      <View style={styles.checkboxContainer}>
-                        <Text>{radioQ.name}</Text>
-
+                        <View style={styles.checkboxContainer}>
+                          <Text>{radioQ.name}</Text>
                         </View>
 
                         {radioQ.categoryQuestionType === "RADIO" && (
@@ -399,8 +452,7 @@ const AddPatientCase = ({ navigation, route }) => {
                                   ...prev,
                                   [radioQ.id]: {
                                     categoryQuestionId: radioQ.id,
-                                    ...(radioQ.categoryQuestionType ===
-                                    "RADIO"
+                                    ...(radioQ.categoryQuestionType === "RADIO"
                                       ? {
                                           categoryQuestionOptionIds: [newValue],
                                         }
@@ -427,11 +479,6 @@ const AddPatientCase = ({ navigation, route }) => {
                             </RadioButton.Group>
                           </View>
                         )}
-
-
-
-
-
 
                         {radioQ.categoryQuestionType === "NUMBER" && (
                           <View style={styles.signinInputContainer}>
@@ -474,83 +521,74 @@ const AddPatientCase = ({ navigation, route }) => {
                           </View>
                         )}
 
+                        {itemInfo.questions?.map((question) => (
+                          <View
+                            key={question.id}
+                            style={styles.questionContainer}
+                          >
+                            {question.categoryQuestionType === "CHECKBOX" && (
+                              <View style={styles.checkboxContainer}>
+                                {question.options.map((option) => {
+                                  // Get current selected IDs for this question
+                                  const currentSelections =
+                                    selectedCheckboxAnswers[question.id] || [];
+                                  const isChecked = currentSelections.includes(
+                                    option.id
+                                  );
 
+                                  return (
+                                    <View
+                                      key={option.id}
+                                      style={styles.checkboxOption}
+                                    >
+                                      <Checkbox.Android
+                                        status={
+                                          isChecked ? "checked" : "unchecked"
+                                        }
+                                        onPress={() => {
+                                          setSelectedCheckboxAnswers((prev) => {
+                                            const updatedSelections = isChecked
+                                              ? prev[question.id]?.filter(
+                                                  (id) => id !== option.id
+                                                ) || []
+                                              : [
+                                                  ...(prev[question.id] || []),
+                                                  option.id,
+                                                ];
 
+                                            console.log(
+                                              `Updated selections for question ${question.id}:`,
+                                              updatedSelections
+                                            );
 
+                                            // Update patientQuestions state
+                                            const updatedData = updateAnswer(
+                                              patientQuestions,
+                                              itemInfo.id, // categoryQuestionGroupId
+                                              question.id, // questionId
+                                              updatedSelections //  Submit all selected IDs
+                                            );
 
+                                            setPatientQuestions(updatedData);
 
-
-
-
-                        
-  {itemInfo.questions?.map((question) => (
-  <View key={question.id} style={styles.questionContainer}>
-   
-    {question.categoryQuestionType === "CHECKBOX" && (
-      <View style={styles.checkboxContainer}>
-        
-        {question.options.map((option) => {
-          // Get current selected IDs for this question
-          const currentSelections = selectedCheckboxAnswers[question.id] || [];
-          const isChecked = currentSelections.includes(option.id);
-
-          return (
-            <View key={option.id} style={styles.checkboxOption}>
-              <Checkbox.Android
-                status={isChecked ? "checked" : "unchecked"}
-                onPress={() => {
-                  setSelectedCheckboxAnswers((prev) => {
-                    const updatedSelections = isChecked
-                      ? prev[question.id]?.filter((id) => id !== option.id) || []
-                      : [...(prev[question.id] || []), option.id];
-
-                    
-                    console.log(`Updated selections for question ${question.id}:`, updatedSelections);
-
-                    // Update patientQuestions state
-                    const updatedData = updateAnswer(
-                      patientQuestions,
-                      itemInfo.id, // categoryQuestionGroupId
-                      question.id, // questionId
-                      updatedSelections //  Submit all selected IDs
-                    );
-
-                    setPatientQuestions(updatedData);
-
-                    return { ...prev, [question.id]: updatedSelections };
-                  });
-                }}
-                color={Colors.lightBlue}
-              />
-              <Text>{option.name}</Text>
-            </View>
-          );
-        })}
-      </View>
-    )}
-  </View>
-))}
-
-
-
-
-
-
+                                            return {
+                                              ...prev,
+                                              [question.id]: updatedSelections,
+                                            };
+                                          });
+                                        }}
+                                        color={Colors.lightBlue}
+                                      />
+                                      <Text>{option.name}</Text>
+                                    </View>
+                                  );
+                                })}
+                              </View>
+                            )}
+                          </View>
+                        ))}
                       </View>
                     ))}
-
-
-
-
-
-
-
-
-
-
-
-
-
                   </View>
 
                   <View style={styles.buttonConatainer}>
@@ -571,11 +609,13 @@ const AddPatientCase = ({ navigation, route }) => {
                           .find((opt) => opt.name.toLowerCase() === "yes");
 
                         if (yesOption && radioValue === yesOption.id) {
-                          // Navigate only when "Yes" is selected & button is pressed
-                          navigation.navigate("");
+                          handleDertermineStatus()
                         } else {
-                          // Move to the next question only when "Next" is pressed
-                          setSelectedIndex(index + 1);
+                          if(selectedIndex === patientQuestions.categoryQuestionGroups?.length-1 ){
+                        handleDertermineStatus()
+                      }else{
+                        setSelectedIndex(index+1)
+                      }
                         }
                       }}
                       disabled={!radioValue} // Prevents pressing "Next" without selecting an option
@@ -595,13 +635,19 @@ const AddPatientCase = ({ navigation, route }) => {
             );
           })}
 
+
+
+
+
+
+          {selectedIndex === patientQuestions.categoryQuestionGroups?.length && (
           <View style={styles.Container}>
             <View style={styles.loginContainer}>
               <View style={styles.pageHeader}>
                 <Text style={styles.pageHeaderText}>Marburg Screening</Text>
               </View>
 
-              <View style={styles.pageHeaderContainer}>
+              <View style={[styles.pageHeaderContainer,{backgroundColor:statusColor}]}>
                 <View style={styles.pageHeader3}>
                   <IconLucide name="TriangleAlert" size={23} color={"black"} />
                   <Text style={styles.pageHeader3Text}>Assessment Review</Text>
@@ -616,7 +662,7 @@ const AddPatientCase = ({ navigation, route }) => {
                     <Text style={styles.statusKeyText}>
                       Name:{" "}
                       <Text style={styles.statusValueText}>
-                        ISOLATE_AND_TEST
+                        {statusName}
                       </Text>
                     </Text>
                   </View>
@@ -747,11 +793,14 @@ const AddPatientCase = ({ navigation, route }) => {
               </View>
 
               <View style={styles.buttonConatainer}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                  <View style={styles.PreviousButton}>
-                    <Text style={styles.PreviousButtonText}>Previous</Text>
-                  </View>
-                </TouchableOpacity>
+              <TouchableOpacity
+                      disabled={selectedIndex === -1} // Disable if first item
+                      onPress={() =>   setSelectedIndex(patientQuestions.categoryQuestionGroups?.length -1)}
+                    >
+                      <View style={styles.NextButton}>
+                        <Text style={styles.NextButtonText}>Previous</Text>
+                      </View>
+                    </TouchableOpacity>
 
                 <TouchableOpacity
                   onPress={() => {
@@ -766,6 +815,16 @@ const AddPatientCase = ({ navigation, route }) => {
               </View>
             </View>
           </View>
+          )}
+
+
+
+
+
+
+          
+
+          
         </ScrollView>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
@@ -915,6 +974,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.lightGray,
     marginHorizontal: 20,
     marginTop: 10,
+    backgroundColor: Colors.solidWhite,
   },
 
   dropDownPlaceHolderStyle: {
@@ -1032,7 +1092,6 @@ const styles = StyleSheet.create({
   pageHeaderContainer: {
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#cce3de",
     marginTop: 10,
     padding: 10,
     paddingBottom: 40,
@@ -1053,7 +1112,6 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     fontWeight: "400",
   },
-  
 });
 
 export default AddPatientCase;

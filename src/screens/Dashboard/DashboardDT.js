@@ -63,36 +63,36 @@ const DashboardDT = () => {
 
 
 
-  useEffect(() => {
-    const fetchPatientCaseListData = async () => {
-      try {
-        setLoading(true);
-  
-        // Fetch data from API
-        const response = await apiService.fetchPatientCaseList();
-  
-        // Handle different API response formats
-        const responseData = response.data?.data || response.data;
-        if (!responseData || !Array.isArray(responseData)) {
-          throw new Error("Invalid API response format");
-        }
-  
-        // console.log("Cases Data:", responseData);
-  
-        // Format data
-       
-  
-        setCasesList(responseData);
-        //console.log("Formatted Cases:", responseData);
-      } catch (error) {
-        console.error("Error fetching patient cases:", error.toString());
-      } finally {
-        setLoading(false);
+useEffect(() => {
+  const  fetchRecentCasesData = async () => {
+    try {
+      setLoading(true);
+
+      // Fetch data from API
+      const response = await apiService.fetchRecentCases();
+
+      // Handle different API response formats
+      const responseData = response.data?.data || response.data;
+      if (!responseData || !Array.isArray(responseData)) {
+        throw new Error("Invalid API response format");
       }
-    };
-  
-    fetchPatientCaseListData();
-  }, []);  
+
+      //console.log("Cases nsoro Data:", responseData);
+
+      // Format data
+
+      setCasesList(responseData);
+      //console.log("Formatted Cases:", responseData);
+    } catch (error) {
+      console.error("Error recent patient cases:", error.toString());
+    } finally {
+      setLoading(false);
+    }
+  };
+
+   fetchRecentCasesData();
+}, []);
+
   
 
 
